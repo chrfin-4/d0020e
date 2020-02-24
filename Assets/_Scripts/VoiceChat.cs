@@ -49,7 +49,7 @@ public class VoiceChat : MonoBehaviourPunCallbacks
     {
         audioSetupBool = false;
         rec.TransmitEnabled = true;
-        rec.DebugEchoMode = false;
+        rec.DebugEchoMode = true;
     }
     
 }

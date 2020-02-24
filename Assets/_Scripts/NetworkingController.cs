@@ -25,7 +25,7 @@ public class NetworkingController : MonoBehaviourPunCallbacks
 
     private GameObject ClientPerson;
     
-    private int usingVR = 1;
+    private int usingVR;
 
     //Photon and unity Functions
     void Start()
@@ -107,6 +107,7 @@ public class NetworkingController : MonoBehaviourPunCallbacks
     //Other Functions
     void VRCheck()
     {
+        usingVR = 0;
         eventSystem.GetComponent<OVRInputModule>().enabled = false;
         eventSystem.GetComponent<StandaloneInputModule>().enabled = false;
         canvas.GetComponent<OVRRaycaster>().enabled = false;
@@ -156,7 +157,6 @@ public class NetworkingController : MonoBehaviourPunCallbacks
             personCam = ClientPerson.transform.Find("Main Camera").gameObject;
             personCam.SetActive(true);
             ClientPerson.transform.Find("Face").gameObject.SetActive(false);
-            ClientPerson.transform.Find("Speaker").gameObject.SetActive(true);
             personCam.GetComponent<AudioListener>().enabled = true;
             
         }else
@@ -167,7 +167,6 @@ public class NetworkingController : MonoBehaviourPunCallbacks
             personCam.SetActive(true);
             ClientPerson.transform.Find("Face").gameObject.SetActive(false);
             ClientPerson.GetComponent<Teleportation>().enabled = true;
-            ClientPerson.transform.Find("Speaker").gameObject.SetActive(true);
             personCam.GetComponent<AudioListener>().enabled = true;
         }
         if(PhotonNetwork.IsMasterClient)
