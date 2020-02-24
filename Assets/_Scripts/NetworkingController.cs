@@ -21,6 +21,8 @@ public class NetworkingController : MonoBehaviourPunCallbacks
     public Canvas canvas;
     public GameObject eventSystem;
 
+    public GameObject _AdminEditViewScript;
+
     public GameObject UIButton;
 
     private GameObject ClientPerson;
@@ -210,6 +212,26 @@ public class NetworkingController : MonoBehaviourPunCallbacks
         
         buttons.Add(buttonObject);
     }
+    
+    // ALL buttons need to be moved to a separate UI script
+    void EditRoomButton()
+    {
+        var buttonObject = Instantiate(UIButton);
+        Button button = (Button) buttonObject.GetComponent("Button");
+        var buttonTextChild = buttonObject.transform.GetChild(0);
+        Text buttonTextChildComponent = (Text) buttonTextChild.GetComponent("Text");
+        buttonTextChildComponent.text = "Edit Room";
+        button.transform.SetParent(canvas.transform, false);
+        button.onClick.AddListener(() => {
+           //Destroy(buttonObject);
+           _AdminEditViewScript.SetActive(true);
+        });
+
+        Vector3 pos = new Vector3(340.0f , 0f, 0.0f);
+        buttonObject.transform.position = pos;
+
+        buttons.Add(buttonObject);
+    }
 
     void DisplayRooms()
     {
@@ -221,6 +243,7 @@ public class NetworkingController : MonoBehaviourPunCallbacks
         {
             //Instantiate(Cube, VRLeftStandby.gameObject.transform.position + new Vector3(20,20,20), Quaternion.identity);
             CreateRoomButton("Create Button");
+            EditRoomButton();
             int numberOfRooms = 0;
             if(rooms != null)
             {
