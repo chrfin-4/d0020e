@@ -5,6 +5,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.XR;
 
 public class NetworkingController : MonoBehaviourPunCallbacks
 {
@@ -78,7 +79,7 @@ public class NetworkingController : MonoBehaviourPunCallbacks
     //On joined room destroy buttons and instantiates player prefab
     public override void OnJoinedRoom() 
     {
-    	Debug.Log("Joined Room");
+    	Debug.Log("Joined Room with: " + PhotonNetwork.CurrentRoom.PlayerCount.ToString() + " Players");
         inRoom = 1;
     	SpawnPerson();
         if(PhotonNetwork.IsMasterClient)
@@ -107,7 +108,7 @@ public class NetworkingController : MonoBehaviourPunCallbacks
     //Other Functions
     void VRCheck()
     {
-        usingVR = 0;
+        usingVR = XRDevice.isPresent ? 1 : 0; 
         eventSystem.GetComponent<OVRInputModule>().enabled = false;
         eventSystem.GetComponent<StandaloneInputModule>().enabled = false;
         canvas.GetComponent<OVRRaycaster>().enabled = false;
@@ -137,7 +138,7 @@ public class NetworkingController : MonoBehaviourPunCallbacks
             canvas.worldCamera = WASDStandby;
         }
     }
-
+    
     void CreatePhotonRoom()
     {
     	RoomOptions options = new RoomOptions() {IsVisible = true, IsOpen = true, MaxPlayers = 10};
@@ -167,16 +168,14 @@ public class NetworkingController : MonoBehaviourPunCallbacks
             personCam.SetActive(true);
             ClientPerson.transform.Find("Face").gameObject.SetActive(false);
             ClientPerson.GetComponent<Teleportation>().enabled = true;
-            personCam.GetComponent<AudioListener>().enabled = true;
+            //personCam.GetComponent<AudioListener>().enabled = true;
         }
         if(PhotonNetwork.IsMasterClient)
         {
-           GameObject Hat = PhotonNetwork.Instantiate("ArtistHat", new Vector3(0,0,0), Quaternion.identity,0); 
-           Hat.transform.SetParent(ClientPerson.transform, false);
-           Hat.transform.position = new Vector3(0,0.7f,0);
+            GameObject Hat = PhotonNetwork.Instantiate("ArtistHat", new Vector3(0,0,0), Quaternion.identity,0);  
+            Hat.transform.SetParent(ClientPerson.transform, false);
+            Hat.transform.position = new Vector3(0,0.7f,0);
         }
-
-
     }
     
     void CreateRoomButton(string buttonText)
@@ -188,7 +187,6 @@ public class NetworkingController : MonoBehaviourPunCallbacks
         buttonTextChildComponent.text = "Create Room";
         buttonObject.transform.SetParent(canvas.transform, false);
         button.onClick.AddListener(() => CreatePhotonRoom());
-        //MeshCollider ButtonCollider = buttonObject.AddComponent( typeof(MeshCollider) ) as MeshCollider;
 
         buttons.Add(buttonObject);
     }
@@ -202,8 +200,6 @@ public class NetworkingController : MonoBehaviourPunCallbacks
         buttonTextChildComponent.text = "Join Room " + roomID;
         button.transform.SetParent(canvas.transform, false);
         button.onClick.AddListener(() => PhotonNetwork.JoinRoom(roomID));
-        //MeshCollider ButtonCollider = buttonObject.AddComponent( typeof(MeshCollider) ) as MeshCollider;
-
 
         Vector3 pos = new Vector3(80.0f , 30.0f * (posFactor + 2.0f), 0.0f);
         buttonObject.transform.position = pos;
@@ -213,13 +209,13 @@ public class NetworkingController : MonoBehaviourPunCallbacks
 
     void DisplayRooms()
     {
-        foreach(var button in buttons)
+        Debug.Log("HEYYO");
+        for(int i = 0; i < canvas.transform.childCount; i++)
         {
-            Destroy(button);
+            Destroy( canvas.transform.GetChild(i).gameObject );
         }
         if(inRoom == 0)
         {
-            //Instantiate(Cube, VRLeftStandby.gameObject.transform.position + new Vector3(20,20,20), Quaternion.identity);
             CreateRoomButton("Create Button");
             int numberOfRooms = 0;
             if(rooms != null)

@@ -9,26 +9,28 @@ using Photon.Realtime;
 public class VoiceChat : MonoBehaviourPunCallbacks
 {
 
-    Recorder rec;
-    AudioListener listener;
+    Recorder rec = null;
+    Speaker listener;
+    AudioSource aSource;
 
     bool audioSetupBool = true;
 
     private void Start()
     {
-        rec = GetComponent("Recorder") as Recorder;
-        listener = transform.Find("Main Camera").gameObject.GetComponent<AudioListener>();
+        listener = this.transform.gameObject.GetComponent<Speaker>();
+        aSource = this.transform.gameObject.GetComponent<AudioSource>();
     }
 
     private void Update() {
-        if(rec && audioSetupBool)
+        if(audioSetupBool)
         {
-           audioSetup();
+            Debug.Log("Audio Setup");
+            audioSetup();
         }
-        if(Input.GetKeyDown(KeyCode.L))
+        if(Input.GetKeyDown(KeyCode.L) || OVRInput.Get(OVRInput.Button.One))
         {
-            //Debug.Log("listener: " + listener.enabled.ToString() );
             Mute();
+            Debug.Log("listener: " + listener.enabled.ToString() );
 
         }
     }
@@ -38,18 +40,23 @@ public class VoiceChat : MonoBehaviourPunCallbacks
         if(listener.enabled)
         {
             listener.enabled = false;
+            (GetComponent("Recorder") as Recorder).TransmitEnabled = false;
+            aSource.enabled = false;
         }
         else
         {
             listener.enabled = true;
+            (GetComponent("Recorder") as Recorder).TransmitEnabled = true;
+            aSource.enabled = true;
         }
     }
 
     void audioSetup()
     {
         audioSetupBool = false;
-        rec.TransmitEnabled = true;
-        rec.DebugEchoMode = true;
+        (GetComponent("Recorder") as Recorder).TransmitEnabled = true;
+        (GetComponent("Recorder") as Recorder).DebugEchoMode = false;
+
     }
     
 }

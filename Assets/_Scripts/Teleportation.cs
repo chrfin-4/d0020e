@@ -49,7 +49,7 @@ public class Teleportation : MonoBehaviour
         }
         CC.Move(new Vector3(0,Physics.gravity.y, 0));
 
-        transform.Rotate(0, cam.transform.rotation.y, 0);
+        //transform.Rotate(0, -cam.transform.rotation.y, 0);
 /*
         if (transform.localScale.x > 5 || transform.localScale.x < 1)
         {
