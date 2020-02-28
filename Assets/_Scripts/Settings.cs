@@ -194,7 +194,7 @@ public class ArtRegistry
         instance.AddArt(title3, artist3, path3, ArtType.Painting);
         instance.AddArt(title4, artist4, path4, ArtType.Painting);
         string artist5 = "Bosse";
-        string title5 = "gourd.obj";
+        string title5 = "power_lines.obj";
         string path5 = path + title5;
         instance.AddArt(title5, artist5, path5, ArtType.Sculpture);
     }

@@ -245,7 +245,21 @@ public class SerilazingArt : MonoBehaviourPunCallbacks
         Vector3 position = slot.transform.position;
         Destroy(slot);
         GameObject loadedObj = obj;
+        Debug.Log("Loaded obj");
         loadedObj.transform.position = position;
-        loadedObj.name = tag;
+        loadedObj.name = "Objekt1";
+        Debug.Log("moved obj");
+        Vector3 desiredSize = new Vector3(1.6f, 1.6f, 1.6f);
+        foreach (Transform t in loadedObj.transform) {
+
+            /*Bounds a = t.GetComponent<MeshRenderer>().bounds;
+            Vector3 desiredSize = a.max - a.min;
+            Debug.Log(desiredSize.ToString());*/
+            Bounds b = t.GetComponent<MeshRenderer>().bounds;
+            Vector3 a = b.max - b.min;
+            float max = Mathf.Max(Mathf.Max(a.x, a.y), a.z);
+            t.transform.localScale = t.transform.localScale * (1.6f/max);
+
+        } 
     }
 }
