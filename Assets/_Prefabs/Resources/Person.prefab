@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: -3170729637260453621}
   - component: {fileID: -4401529325765097983}
   - component: {fileID: -2053035623537751616}
+  - component: {fileID: -90589682836888053}
   m_Layer: 0
   m_Name: Person
   m_TagString: Untagged
@@ -293,6 +294,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   logLevel: 1
   PlayDelayMs: 200
+--- !u!114 &-90589682836888053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 458044455560870957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb0b8e231d06dab3ba2ad2511a4e232e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerCam: {fileID: 7338169919642732051}
+  standbyCam: {fileID: 0}
+  moveScript: {fileID: 5343595938044574794}
 --- !u!1 &1197920089337047361
 GameObject:
   m_ObjectHideFlags: 0
