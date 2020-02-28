@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311947, g: 0.38074005, b: 0.35872722, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311992, g: 0.38074034, b: 0.35872713, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -137,9 +137,8 @@ GameObject:
   - component: {fileID: 95912156}
   - component: {fileID: 95912157}
   - component: {fileID: 95912158}
-  - component: {fileID: 95912159}
   m_Layer: 0
-  m_Name: GlobalScripts
+  m_Name: _networkScript
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -171,9 +170,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57db459d34865a34bb29d8317f201d41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inRoom: 0
+  WASDStandby: {fileID: 1923039669}
+  VRStandByCameraRig: {fileID: 1562069058}
+  canvas: {fileID: 1141929975}
   eventSystem: {fileID: 1905927076}
-  usingVR: 0
+  UIButton: {fileID: 1027706555711100998, guid: e07e36db383c12c4abdc7561b58e0b0a,
+    type: 3}
 --- !u!114 &95912158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -212,23 +214,6 @@ MonoBehaviour:
   AutoLeaveAndDisconnect: 1
   AutoCreateSpeakerIfNotFound: 0
   usePunAppSettings: 1
---- !u!114 &95912159
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 95912155}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18d95cb9f7291799781d1a96de204cf2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  UIButton: {fileID: 1027706555711100998, guid: e07e36db383c12c4abdc7561b58e0b0a,
-    type: 3}
-  canvas: {fileID: 1141929975}
-  WASDStandby: {fileID: 1923039669}
-  VRStandByCameraRig: {fileID: 1562069058}
 --- !u!4 &165585584 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400002, guid: 126d619cf4daa52469682f85c1378b4a,

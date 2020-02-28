@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
@@ -9,24 +9,29 @@ using UnityEngine.EventSystems;
 public class NetworkingController : MonoBehaviourPunCallbacks
 {
     //Variables
-    public List <RoomInfo> rooms;
+    private List <RoomInfo> rooms;
     private string roomName;
-    public int inRoom = 0;
+    private int inRoom = 0;
+    private List <GameObject> buttons = new List<GameObject>();
     private GameObject personCam;
 
+    public Camera WASDStandby;
+    public GameObject VRStandByCameraRig;
+
+    public Canvas canvas;
     public GameObject eventSystem;
+
+    public GameObject UIButton;
 
     private GameObject ClientPerson;
     
-    public int usingVR;
-
+    private int usingVR;
 
     //Photon and unity Functions
     void Start()
     {
-        usingVR = 0;
         VRCheck();
-        transform.GetComponent<UI>().setupCanvas();
+        setupCanvas();
         Connect();
     }
 
@@ -48,7 +53,7 @@ public class NetworkingController : MonoBehaviourPunCallbacks
     {
         Debug.Log("Joined Lobby");
         Debug.Log("InLobby: "+ PhotonNetwork.InLobby.ToString() );
-        transform.GetComponent<UI>().DisplayRooms(rooms);
+        DisplayRooms();
     }
 
     public override void OnJoinRandomFailed(short returncode, string message) //No rooms are visible or available
@@ -66,7 +71,7 @@ public class NetworkingController : MonoBehaviourPunCallbacks
     public override void OnRoomListUpdate(List <RoomInfo> roomList)
     {
         rooms = roomList;
-        transform.GetComponent<UI>().DisplayRooms(rooms);
+        DisplayRooms();
     }
 
 
@@ -102,25 +107,38 @@ public class NetworkingController : MonoBehaviourPunCallbacks
     //Other Functions
     void VRCheck()
     {
+        usingVR = 0;
         eventSystem.GetComponent<OVRInputModule>().enabled = false;
         eventSystem.GetComponent<StandaloneInputModule>().enabled = false;
-        transform.GetComponent<UI>().canvas.GetComponent<OVRRaycaster>().enabled = false;
-        transform.GetComponent<UI>().canvas.GetComponent<GraphicRaycaster>().enabled = false;
+        canvas.GetComponent<OVRRaycaster>().enabled = false;
+        canvas.GetComponent<GraphicRaycaster>().enabled = false;
         if(usingVR == 1)
         {
-            transform.GetComponent<UI>().VRStandByCameraRig.gameObject.SetActive(true);
+            VRStandByCameraRig.gameObject.SetActive(true);
             eventSystem.GetComponent<OVRInputModule>().enabled = true;
-            transform.GetComponent<UI>().canvas.GetComponent<OVRRaycaster>().enabled = true;
+            canvas.GetComponent<OVRRaycaster>().enabled = true;
         }else
         {
             Debug.Log("Not using VR");
-            transform.GetComponent<UI>().WASDStandby.gameObject.SetActive(true);
-            transform.GetComponent<UI>().canvas.GetComponent<GraphicRaycaster>().enabled = true;
+            WASDStandby.gameObject.SetActive(true);
+            canvas.GetComponent<GraphicRaycaster>().enabled = true;
             eventSystem.GetComponent<StandaloneInputModule>().enabled = true;
         }
     }
 
-    public void CreatePhotonRoom()
+    //Setting up canvas which is necessary for world gui to work, essential for VR
+    void setupCanvas()
+    {
+        if(usingVR == 1)
+        {
+            canvas.worldCamera = VRStandByCameraRig.transform.Find("TrackingSpace").transform.Find("CenterEyeAnchor").GetComponent<Camera>();
+        }else
+        {
+            canvas.worldCamera = WASDStandby;
+        }
+    }
+
+    void CreatePhotonRoom()
     {
     	RoomOptions options = new RoomOptions() {IsVisible = true, IsOpen = true, MaxPlayers = 10};
         roomName = "Room " + Random.Range(0,10000);
@@ -130,12 +148,12 @@ public class NetworkingController : MonoBehaviourPunCallbacks
 
     void SpawnPerson() //Spawn person and activating movement script and main camera locally
     {
-        
+        WASDStandby.gameObject.SetActive(false);
+        VRStandByCameraRig.gameObject.SetActive(false);
         if(usingVR == 0)
         {
     	    ClientPerson = PhotonNetwork.Instantiate("Person", Vector3.zero, Quaternion.identity, 0);
             ClientPerson.GetComponent<Movement>().enabled = true;
-            ClientPerson.GetComponent<Menu>().standbyCam = transform.GetComponent<UI>().WASDStandby.gameObject;
             personCam = ClientPerson.transform.Find("Main Camera").gameObject;
             personCam.SetActive(true);
             ClientPerson.transform.Find("Face").gameObject.SetActive(false);
@@ -151,22 +169,78 @@ public class NetworkingController : MonoBehaviourPunCallbacks
             ClientPerson.GetComponent<Teleportation>().enabled = true;
             personCam.GetComponent<AudioListener>().enabled = true;
         }
-
         if(PhotonNetwork.IsMasterClient)
         {
            GameObject Hat = PhotonNetwork.Instantiate("ArtistHat", new Vector3(0,0,0), Quaternion.identity,0); 
            Hat.transform.SetParent(ClientPerson.transform, false);
            Hat.transform.position = new Vector3(0,0.7f,0);
         }
-        transform.GetComponent<UI>().WASDStandby.gameObject.SetActive(false);
-        transform.GetComponent<UI>().VRStandByCameraRig.gameObject.SetActive(false);
 
 
-    }    
+    }
+    
+    void CreateRoomButton(string buttonText)
+    {
+        GameObject buttonObject = Instantiate(UIButton);
+        Button button = (Button)buttonObject.GetComponent("Button");
+        var buttonTextChild = buttonObject.transform.GetChild(0);
+        Text buttonTextChildComponent = (Text)buttonTextChild.GetComponent("Text");
+        buttonTextChildComponent.text = "Create Room";
+        buttonObject.transform.SetParent(canvas.transform, false);
+        button.onClick.AddListener(() => CreatePhotonRoom());
+        //MeshCollider ButtonCollider = buttonObject.AddComponent( typeof(MeshCollider) ) as MeshCollider;
+
+        buttons.Add(buttonObject);
+    }
+
+    void JoinRoomButton(string roomID, int posFactor)
+    {
+        var buttonObject = Instantiate(UIButton);
+        Button button = (Button)buttonObject.GetComponent("Button");
+        var buttonTextChild = buttonObject.transform.GetChild(0);
+        Text buttonTextChildComponent = (Text)buttonTextChild.GetComponent("Text");
+        buttonTextChildComponent.text = "Join Room " + roomID;
+        button.transform.SetParent(canvas.transform, false);
+        button.onClick.AddListener(() => PhotonNetwork.JoinRoom(roomID));
+        //MeshCollider ButtonCollider = buttonObject.AddComponent( typeof(MeshCollider) ) as MeshCollider;
+
+
+        Vector3 pos = new Vector3(80.0f , 30.0f * (posFactor + 2.0f), 0.0f);
+        buttonObject.transform.position = pos;
+        
+        buttons.Add(buttonObject);
+    }
+
+    void DisplayRooms()
+    {
+        foreach(var button in buttons)
+        {
+            Destroy(button);
+        }
+        if(inRoom == 0)
+        {
+            //Instantiate(Cube, VRLeftStandby.gameObject.transform.position + new Vector3(20,20,20), Quaternion.identity);
+            CreateRoomButton("Create Button");
+            int numberOfRooms = 0;
+            if(rooms != null)
+            {
+                foreach(var room in rooms)
+                {
+                    numberOfRooms += 1;
+                }
+                if(numberOfRooms != 0)
+                {
+                    for(int i = 0; i < numberOfRooms; i++)
+                    {  
+                        JoinRoomButton(rooms[i].Name, i);
+                    }
+                }
+            }
+        }
+    }
 
     void LeaveRoom()
     {
 
     }
-
 }
