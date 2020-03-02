@@ -227,7 +227,7 @@ public class NetworkingController : MonoBehaviourPunCallbacks
            _AdminEditViewScript.SetActive(true);
         });
 
-        Vector3 pos = new Vector3(340.0f , 0f, 0.0f);
+        Vector3 pos = new Vector3(340.0f , 14.5f, 0.0f);
         buttonObject.transform.position = pos;
 
         buttons.Add(buttonObject);

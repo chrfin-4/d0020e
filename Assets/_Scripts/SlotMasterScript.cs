@@ -25,7 +25,8 @@ public class SlotMasterScript : MonoBehaviour
                 slots,
                 artMeta
             );
-            ArtRegistry.GetArtRegistry().AddArt(artMeta);
+            if (!ArtRegistry.GetArtRegistry().HasArt(artMeta.Checksum))
+                ArtRegistry.GetArtRegistry().AddArt(artMeta);
 
             //Sprite sprite = IMG2Sprite.instance.LoadNewSprite(filename);
             //Debug.Log(sprite);
