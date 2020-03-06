@@ -103,6 +103,20 @@ public static class DictExtension
         return result;
     }
 
+    public static Dictionary<K,V> ForEachKey<K,V>(this Dictionary<K,V> dict, Action<K> f)
+    {
+        foreach (K k in dict.Keys)
+            f(k);
+        return dict;
+    }
+
+    public static Dictionary<K,V> ForEachValue<K,V>(this Dictionary<K,V> dict, Action<V> f)
+    {
+        foreach (V v in dict.Values)
+            f(v);
+        return dict;
+    }
+
 }
 
 public static class ListExtension

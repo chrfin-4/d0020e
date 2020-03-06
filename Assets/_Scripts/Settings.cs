@@ -19,7 +19,7 @@ public class Checksum
         new Checksum(Util.ComputeSHA256(bytes));
 
     public static Checksum Compute(string absolutePath, ArtType type = ArtType.Painting) =>
-        type == ArtType.Painting ? Compute2D(absolutePath) : Compute3D(absolutePath);
+        type.IsPainting() ? Compute2D(absolutePath) : Compute3D(absolutePath);
 
     public static Checksum Compute2D(string absolutePath) =>
         new Checksum(Util.ComputeSHA256(absolutePath));
@@ -82,8 +82,9 @@ public class RoomSettings
     public static RoomSettings GetTestRoomSettings()
     {
         Dictionary<int,SlotSettings> settings = new Dictionary<int,SlotSettings>();
-        ArtRegistry reg = ArtRegistry.GetEmptyArtRegistry();
-        int nr = 1;
+        //ArtRegistry reg = ArtRegistry.GetEmptyArtRegistry();
+        ArtRegistry reg = AppSettings.GetAppSettings().ArtRegistry;
+        int nr = 5;
         foreach (ArtMetaData meta in reg.GetAll())
         {
             settings.Add(nr, new SlotSettings(nr, meta));

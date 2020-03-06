@@ -26,4 +26,8 @@ public static class ArtTypeExtension
 
     public static ArtType ToArtType(this string type) => fromString[type];
 
+    public static bool IsPainting(this ArtType type) => type == ArtType.Painting;
+
+    public static bool IsSculpture(this ArtType type) => type == ArtType.Sculpture;
+
 }
