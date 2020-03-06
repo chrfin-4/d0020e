@@ -149,7 +149,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4411585411639742774}
-  - component: {fileID: 2049150209752622556}
   - component: {fileID: 3654796222748776972}
   - component: {fileID: 716169927088633093}
   - component: {fileID: 1875416916995758537}
@@ -190,22 +189,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2049150209752622556
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2362766676029873918}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4fffd9d6cff7cb946afa7927eea1140e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 6
-  sensitivity: 1
-  upDownRange: 70
-  jump: 10
 --- !u!143 &3654796222748776972
 CharacterController:
   m_ObjectHideFlags: 0
@@ -244,6 +227,7 @@ MonoBehaviour:
   cam: {fileID: 4270228051882389690}
   RTrigger: 2097152
   LTrigger: 8192
+  personHeight: 2.5
 --- !u!114 &1875416916995758537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -962,7 +946,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7098589460067752928}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1

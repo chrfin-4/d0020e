@@ -244,12 +244,6 @@ MonoBehaviour:
   canvas: {fileID: 1141929975}
   WASDStandby: {fileID: 1923039669}
   VRStandByCameraRig: {fileID: 2006258385}
---- !u!4 &165585584 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 400002, guid: 126d619cf4daa52469682f85c1378b4a,
-    type: 3}
-  m_PrefabInstance: {fileID: 1513646219}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &223974227 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1042178131094955318, guid: 69c125b8f994dd544a260a4bac9545ff,
@@ -408,6 +402,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_StaticEditorFlags
       value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 7554785512998007550, guid: 9243d1065c4c1a74d9a8a28d45f57a7d,
+        type: 3}
+      propertyPath: m_TagString
+      value: Walkable
       objectReference: {fileID: 0}
     - target: {fileID: 7554785513049653581, guid: 9243d1065c4c1a74d9a8a28d45f57a7d,
         type: 3}
@@ -793,6 +792,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1114040580 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 113768, guid: 126d619cf4daa52469682f85c1378b4a,
+    type: 3}
+  m_PrefabInstance: {fileID: 1513646219}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1114040581 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 487254, guid: 126d619cf4daa52469682f85c1378b4a,
+    type: 3}
+  m_PrefabInstance: {fileID: 1513646219}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1122723315
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -874,7 +885,7 @@ PrefabInstance:
         type: 3}
       propertyPath: rayTransform
       value: 
-      objectReference: {fileID: 165585584}
+      objectReference: {fileID: 1114040581}
     - target: {fileID: 1042178131094955318, guid: 69c125b8f994dd544a260a4bac9545ff,
         type: 3}
       propertyPath: hideByDefault
@@ -1008,7 +1019,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  pointer: {fileID: 1793089056}
+  pointer: {fileID: 1114040580}
   sortOrder: 0
 --- !u!1 &1271870111
 GameObject:
@@ -1376,12 +1387,6 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!1 &1793089056 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 100002, guid: 126d619cf4daa52469682f85c1378b4a,
-    type: 3}
-  m_PrefabInstance: {fileID: 1513646219}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1905927076
 GameObject:
   m_ObjectHideFlags: 0
@@ -1461,7 +1466,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f1a9a1d119a5944aacfb87d1ec283a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rayTransform: {fileID: 165585584}
+  rayTransform: {fileID: 1114040581}
   m_Cursor: {fileID: 223974227}
   joyPadClickButton: 2097152
   gazeClickKey: 32

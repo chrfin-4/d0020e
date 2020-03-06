@@ -5,6 +5,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.XR;
 
 public class NetworkingController : MonoBehaviourPunCallbacks
 {
@@ -24,7 +25,7 @@ public class NetworkingController : MonoBehaviourPunCallbacks
     //Photon and unity Functions
     void Start()
     {
-        usingVR = 0;
+        usingVR = XRDevice.isPresent ? usingVR = 1 : usingVR = 0;
         VRCheck();
         transform.GetComponent<UI>().setupCanvas();
         Connect();
@@ -171,7 +172,6 @@ public class NetworkingController : MonoBehaviourPunCallbacks
             personCam = ClientPerson.transform.Find("Main Camera").gameObject;
             personCam.SetActive(true);
             ClientPerson.transform.Find("Face").gameObject.SetActive(false);
-            personCam.GetComponent<AudioListener>().enabled = true;
             
         }else
         {
@@ -182,7 +182,6 @@ public class NetworkingController : MonoBehaviourPunCallbacks
             personCam.SetActive(true);
             ClientPerson.transform.Find("Face").gameObject.SetActive(false);
             ClientPerson.GetComponent<Teleportation>().enabled = true;
-            personCam.GetComponent<AudioListener>().enabled = true;
         }
 
         if(PhotonNetwork.IsMasterClient)
