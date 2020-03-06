@@ -27,16 +27,11 @@ public class VoiceChat : MonoBehaviourPunCallbacks
             Debug.Log("Audio Setup");
             audioSetup();
         }
-        if(Input.GetKeyDown(KeyCode.L) || OVRInput.Get(OVRInput.Button.One))
-        {
-            Mute();
-            Debug.Log("listener: " + listener.enabled.ToString() );
-
-        }
     }
 
-    void Mute()
+    public void Mute()
     {
+        Debug.Log("Togglar mute");
         if(listener.enabled)
         {
             listener.enabled = false;

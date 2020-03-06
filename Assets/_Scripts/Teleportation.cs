@@ -22,6 +22,7 @@ public class Teleportation : MonoBehaviour
 
     CharacterController CC;
 
+    public float personHeight = 2.5f;
 
     private float height;
     private Quaternion areaRotation;
@@ -96,7 +97,7 @@ public class Teleportation : MonoBehaviour
 
             if (OVRInput.GetDown(LTrigger)) // LMB
             {
-                transform.position = new Vector3(area.transform.position.x, area.transform.position.y + 2f, area.transform.position.z);
+                transform.position = new Vector3(area.transform.position.x, area.transform.position.y + personHeight, area.transform.position.z);
             }
         }
         else if (area.GetComponent<Renderer>().enabled)

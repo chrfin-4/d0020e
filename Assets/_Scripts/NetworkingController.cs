@@ -16,7 +16,7 @@ public class NetworkingController : MonoBehaviourPunCallbacks
 
     public GameObject eventSystem;
 
-    private GameObject ClientPerson;
+    public GameObject ClientPerson;
     
     public int usingVR;
 
@@ -47,8 +47,8 @@ public class NetworkingController : MonoBehaviourPunCallbacks
     public override void OnJoinedLobby()
     {
         Debug.Log("Joined Lobby");
-        Debug.Log("InLobby: "+ PhotonNetwork.InLobby.ToString() );
-        transform.GetComponent<UI>().DisplayRooms(rooms);
+        //Debug.Log("InLobby: "+ PhotonNetwork.InLobby.ToString() );
+        
     }
 
     public override void OnJoinRandomFailed(short returncode, string message) //No rooms are visible or available
@@ -66,21 +66,42 @@ public class NetworkingController : MonoBehaviourPunCallbacks
     public override void OnRoomListUpdate(List <RoomInfo> roomList)
     {
         rooms = roomList;
-        transform.GetComponent<UI>().DisplayRooms(rooms);
+        for(int i = 0; i < rooms.Count; i++)
+        {
+            Debug.Log("RoomListUpdate: " + rooms[i].ToString() );
+        }
+        /*
+        for(int i = 0; i < roomList.Count; i++)
+        {
+            if(UpdateRoom(rooms, roomList[i]))
+            {
+                rooms.Remove(roomList[i]);
+            }else{
+                rooms.Add(roomList[i]);
+            }
+        }
+        */
+        transform.GetComponent<UI>().DisplayButtons(rooms);
     }
 
 
     //On joined room destroy buttons and instantiates player prefab
     public override void OnJoinedRoom() 
     {
-    	Debug.Log("Joined Room");
-        inRoom = 1;
-    	SpawnPerson();
+    	inRoom = 1;
+    	//Debug.Log("Joined Room, inroom " + inRoom.ToString() );
+        SpawnPerson();
+        transform.GetComponent<UI>().DisplayButtons(rooms);
         if(PhotonNetwork.IsMasterClient)
         {
             RoomSettings room = RoomSettings.GetTestRoomSettings();
             ClientPerson.GetComponent<SerilazingArt>().ExportArt(room);
         }
+    }
+    public override void OnLeftRoom()
+    {
+        inRoom = 0;
+        transform.GetComponent<UI>().DisplayButtons(rooms);
     }
     public override void OnPlayerEnteredRoom(Player newplayer)
     {
@@ -120,6 +141,17 @@ public class NetworkingController : MonoBehaviourPunCallbacks
         }
     }
 
+    bool UpdateRoom(List <RoomInfo> rooms, RoomInfo room)
+    {
+        for(int i = 0; i < rooms.Count; i++)
+        {
+            if(rooms[i] == room)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     public void CreatePhotonRoom()
     {
     	RoomOptions options = new RoomOptions() {IsVisible = true, IsOpen = true, MaxPlayers = 10};
@@ -145,6 +177,7 @@ public class NetworkingController : MonoBehaviourPunCallbacks
         {
             ClientPerson = PhotonNetwork.Instantiate("VRPerson", new Vector3(0,0,0), Quaternion.identity,0);
             ClientPerson.transform.Find("Capsule").gameObject.SetActive(false);
+            ClientPerson.GetComponent<Menu>().standbyCam = transform.GetComponent<UI>().VRStandByCameraRig.gameObject;
             personCam = ClientPerson.transform.Find("TrackingSpace").gameObject;
             personCam.SetActive(true);
             ClientPerson.transform.Find("Face").gameObject.SetActive(false);

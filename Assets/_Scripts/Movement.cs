@@ -39,8 +39,9 @@ public class Movement : MonoBehaviour
 		
 		verticalRotation -= Input.GetAxis("Mouse Y") * sensitivity;
 		verticalRotation = Mathf.Clamp(verticalRotation, -upDownRange, upDownRange);
-		Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
-
+		if(Camera.main.transform.gameObject.activeSelf){
+			Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
+		}
 		//WASD Movement
 
 		if(!CC.isGrounded)
