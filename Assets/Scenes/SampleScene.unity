@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37312627, g: 0.38074502, b: 0.358728, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -194,6 +194,7 @@ MonoBehaviour:
   logLevel: 1
   enableSupportLogger: 0
   updateInterval: 50
+  runInBackground: 1
   statsResetInterval: 1000
   speakerPrefab: {fileID: 0}
   primaryRecorder: {fileID: 0}
@@ -243,7 +244,7 @@ PrefabInstance:
     - target: {fileID: 2691758414009427780, guid: bad3787118a8bcdf391d32754874fc97,
         type: 3}
       propertyPath: m_Name
-      value: _AdminEditViewScript
+      value: _AdminEditView
       objectReference: {fileID: 0}
     - target: {fileID: 2691758414009427780, guid: bad3787118a8bcdf391d32754874fc97,
         type: 3}
@@ -260,6 +261,12 @@ PrefabInstance:
       propertyPath: ArtSlotHighlight
       value: 
       objectReference: {fileID: 6117218227643717189, guid: c4ffaa4c9cd7cbf99a05c41dfd57a7ae,
+        type: 3}
+    - target: {fileID: 4502232437240200512, guid: bad3787118a8bcdf391d32754874fc97,
+        type: 3}
+      propertyPath: UIButton
+      value: 
+      objectReference: {fileID: 1027706555711100998, guid: e07e36db383c12c4abdc7561b58e0b0a,
         type: 3}
     - target: {fileID: 7961980517987724227, guid: bad3787118a8bcdf391d32754874fc97,
         type: 3}

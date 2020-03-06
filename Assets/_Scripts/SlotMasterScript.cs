@@ -1,20 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class SlotMasterScript : MonoBehaviour
 {
 
     private int slots = 0;
+	private bool EditMode = false;
+	private EditSettings Settings;
     //public RoomSettings roomSettings;
 
     // Start is called before the first frame update
     void Start()
     {
-        string filename = "bil.png";
+        string filename = "bil.png"; // TODO
         foreach (Transform child in transform)
         {
-            Debug.Log(slots);
+            /*Debug.Log(slots);
             ArtMetaData artMeta = new ArtMetaData(
                 "title",
                 "artist",
@@ -32,9 +35,37 @@ public class SlotMasterScript : MonoBehaviour
             //Debug.Log(sprite);
 
             //child.GetComponent<SpriteRenderer>().sprite = sprite;
-            slots++;
+            slots++;*/
         }
     }
+	
+	public void StartEditMode(EditSettings settings)
+    {
+        EditMode = true;
+		Settings = settings;
+		foreach (Transform artSlot in transform)
+		{
+			PaintingSlotScript slotScript = artSlot.GetComponent<PaintingSlotScript>();
+			slotScript.UIButton = settings.UIButton;
+			slotScript.SetEditMode(true);
+			slotScript.AddHighlightListener(Settings.EditListenerCall);
+			slotScript.setCamera(Settings.EditViewCamera);
+			
+		}
+    }
+	
+	public void StopEditMode()
+    {
+		EditMode = false;
+	}
+	
+	public void AddHighlightListeners(UnityAction<(HighlightEventType, GameObject)> call)
+	{
+		foreach (Transform artSlot in transform)
+		{
+			artSlot.GetComponent<PaintingSlotScript>().AddHighlightListener(call);
+		}
+	}
 
     // Update is called once per frame
     void Update()
