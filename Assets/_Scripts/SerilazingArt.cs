@@ -24,20 +24,19 @@ public class ArtManifest
 }
 
 // Assuming art pieces will be completely identified by their checksum.
-// TODO: slots are going to be numbered in the future, not named. Right?
 
 public class SerilazingArt : MonoBehaviourPunCallbacks
 {
 
-    //private static string root = @"C:\Users\tompa\Downloads";
     private Dictionary<Checksum,SlotSettings> slotSettings;
     private string root;
     private ArtRegistry artReg;
 
     public void Awake()
     {
-        root = AppSettings.GetAppSettings().RootPath;
+        root = AppSettings.GetAppSettings().DownloadPath;
         artReg = AppSettings.GetAppSettings().ArtRegistry;
+        Debug.Log("Using root: " + root);
     }
 
     // TODO: Take settings as a parameter, or take no parameters
@@ -47,11 +46,11 @@ public class SerilazingArt : MonoBehaviourPunCallbacks
     // Perform RPC on all clients when they connect (targeting OthersBuffered).
     public void ExportArt(RoomSettings room)
     {
-        //DistributeManifest(GetArtManifest());
         DistributeManifest(room.GetManifest());
-        room.Slots.ForEachValue(DisplayArt);
+        room.Slots.ForEachValue(DisplayArt);  // TODO: should definitely do this, but maybe somewhere else?
     }
 
+    // TODO: This method needs cleaning up!!
     // TODO: Call a separate method for updating slotSettings.
     // Invoked on visitors by master client.
     // Receives the manifest and checks if there are missing assets that need
@@ -74,28 +73,39 @@ public class SerilazingArt : MonoBehaviourPunCallbacks
                 // Use existing meta data from registry.
                 ss = slot.WithMeta(artReg.Get(checksum));
                 slotSettings.Add(checksum, ss);
-                /*
-                string filename = ss.MetaData.AbsolutePath;
-                Sprite MySprite = IMG2Sprite.instance.LoadNewSprite(filename);
-                string tag = slotNrToTag(ss.SlotNumber);
-                SetSprite(tag, MySprite);
-                */
                 DisplayArt(ss);
             } else
             {
-                Debug.Log("Visitor does NOT have art " + checksum.ToString());
-                missing.Add(checksum);
                 ArtMetaData absolute = ss.MetaData.MakeAbsolutePath(root);
                 ss = slot.WithMeta(absolute);
                 slotSettings.Add(ss.MetaData.Checksum, ss);
-                // TODO:
-                // instantiate some place holder for missing?
+                if (alreadyDownloaded(ss.MetaData))
+                {
+                    artReg.AddArt(absolute);
+                    DisplayArt(ss);
+                } else
+                {
+                    Debug.Log("Visitor does NOT have art " + checksum.ToString());
+                    missing.Add(checksum);
+                    // TODO:
+                    // instantiate some place holder for missing?
+                }
             }
         }
         if (missing.Count > 0)
             RequestArtAssets(missing);
     }
 
+    private bool alreadyDownloaded(ArtMetaData meta)
+    {
+        Debug.Log("Checking if " + meta.AbsolutePath + " already exists");
+        if (!Util.IsFile(meta.AbsolutePath))
+            return false;
+        Checksum hash = Checksum.Compute(meta.AbsolutePath, meta.Type);
+        return meta.Checksum.Equals(hash);
+    }
+
+    //private string slotNrToTag(int slot) => "ArtSlot" + slot.ToString();
     private string slotNrToTag(int slot) => "Tavla" + slot.ToString();
 
     // Runs on master client (called by regular clients).
@@ -106,69 +116,26 @@ public class SerilazingArt : MonoBehaviourPunCallbacks
         ExportArtAssets(missing, info.Sender);
     }
 
-    // TODO: take an ArtType parameter as well.
     // Runs on regular client (called by master client).
     // Receive a single asset.
     // The byte array is the actual file contents.
     [PunRPC]
-    private void ReceiveArtAssetRPC(byte[] asset)
+    private void ReceiveArtAssetRPC(byte[] asset, byte[] hash)
     {
-        //Checksum checksum = Checksum.Compute(asset);
-        Checksum checksum = getHash(asset);
-        Debug.Log("Adding received asset to registry.");
+        Checksum checksum = Serial.DeserializeByteArray<Checksum>(hash);
         SlotSettings slot = slotSettings[checksum];
         ImportAsset(asset, slot.MetaData);
-        /*
-        ArtMetaData metaData = slot.MetaData;
-        File.WriteAllBytes(metaData.AbsolutePath, asset);
-        artReg.AddArt(metaData);
-        */
-        // Use settings to instantiate (show in room)?
-        Debug.Log("Showing art");
         DisplayArt(slot);
-        /*
-        string filename = slot.MetaData.AbsolutePath;
-        Sprite MySprite = IMG2Sprite.instance.LoadNewSprite(filename);
-        string tag = slotNrToTag(slot.SlotNumber);
-        SetSprite(tag, MySprite);
-        */
 
         // Transfer of asset complete.
     }
 
     // Store asset data and register in Art Registry.
-    // XXX: By always zipping files (whether a single picture or multiple
-    // files belonging to a 3D model), these can be handled identically.
-    // So no special 2D/3D treatment should be necessary!
     public void ImportAsset(byte[] asset, ArtMetaData meta)
     {
-        /*
-        if (meta.IsPainting)
-            File.WriteAllBytes(meta.AbsolutePath, asset);
-        else if (meta.IsSculpture)
-            Util.Unzip(asset, Util.GetDirectory(meta.AbsolutePath));
-        else
-            throw new ArgumentException("neither 2D painting nor 3D sculpture");
-        //*/
+        Debug.Log("Importing received asset.");
         Util.UnzipAsset(asset, meta);
         artReg.AddArt(meta);
-    }
-
-    // XXX: Deprecated. ReceiveArtAssetRPC should take at least the checksum and possibly the type.
-    private Checksum getHash(byte[] asset)
-    {
-        // Try to compute hash of the bytes directly (assuming it's a 2D picture).
-        Checksum hash = Checksum.Compute(asset);
-        if (slotSettings.ContainsKey(hash))
-            return hash; // Apparently it was a picture, and we got the correct hash.
-        // Must be a zip. So unzip to a temporary directory to compute hash.
-        string path = Path.Combine(root, "tmp");
-        Util.Unzip(asset, path);
-        hash = Checksum.Compute3D(path);
-        Directory.Delete(path, true);
-        if (!slotSettings.ContainsKey(hash))
-            Debug.Log("!! Something went wrong! Received unknown asset.");
-        return hash;
     }
 
     // Display (known / locally present) art using the slot settings.
@@ -182,24 +149,19 @@ public class SerilazingArt : MonoBehaviourPunCallbacks
     // Display (known / locally present) art in the specified slot.
     public void DisplayArt(ArtMetaData meta, string slotTag)
     {
+        Debug.Log("Displaying slot " + slotTag + ": " + meta.Checksum.ToString());
         string filename = meta.AbsolutePath;
         if (meta.IsPainting)
         {
             Sprite sprite = IMG2Sprite.instance.LoadNewSprite(filename);
-            SetSprite(tag, sprite);
+            SetSprite(slotTag, sprite);
         }
         else if (meta.IsSculpture)
         {
-            // TODO:
-            // Call appropriate methods to place 3D model in slot.
             GameObject obj = new OBJLoader().Load(meta.AbsolutePath);
-            string tag = "Objekt1";
-            SetObj(tag, obj);
+            SetObj(slotTag, obj);
         }
     }
-
-    private ArtType deprecatedGetArtType(Checksum checksum)
-        => slotSettings.ContainsKey(checksum) ? ArtType.Painting : ArtType.Sculpture;
 
     /*
      * The one-line helper methods RequestArtAssets, ExportArtAssets, and
@@ -211,7 +173,7 @@ public class SerilazingArt : MonoBehaviourPunCallbacks
     {
         byte[] manifest = Serial.SerializableToByteArray(artManifest);
         This().RPC("ReceiveManifestRPC", RpcTarget.OthersBuffered, manifest);
-        //This().RPC("ReceiveManifestRPC", RpcTarget.AllBuffered, manifest);
+        //This().RPC("ReceiveManifestRPC", RpcTarget.AllBuffered, manifest);  // XXX: testing
     }
 
     // Request these assets by telling the master client to export them.
@@ -225,45 +187,22 @@ public class SerilazingArt : MonoBehaviourPunCallbacks
     // Exports one at a time.
     private void ExportArtAssets(List<Checksum> checksums, Player receiver)
     {
-        //ArtRegistry reg = ArtRegistry.GetArtRegistry();
         foreach (Checksum checksum in checksums)
         {
             Debug.Log("Exporting asset with checksum " + checksum.ToString());
             Debug.Log("Reading asset file...");
-            //byte[] asset = File.ReadAllBytes(reg.Get(checksum).AbsolutePath);
             byte[] asset = getAssetBytes(checksum);
+            byte[] hash = Serial.SerializableToByteArray(checksum);
             Debug.Log("Invoking ReceiveArtAssetRPC");
-            This().RPC("ReceiveArtAssetRPC", receiver, asset);
+            This().RPC("ReceiveArtAssetRPC", receiver, asset, hash);
         }
     }
 
     private byte[] getAssetBytes(Checksum checksum)
     {
-        //ArtRegistry artReg = ArtRegistry.GetArtRegistry();
-        //ArtMetaData meta = artReg.Get(checksum);
+        ArtRegistry artReg = AppSettings.GetAppSettings().ArtRegistry;
         return Util.ZipAsset(artReg.Get(checksum));
-        /*
-        if (meta.Type == ArtType.Painting)
-            return get2DAssetBytes(meta);
-        else if (meta.Type == ArtType.Sculpture)
-            return get3DAssetBytes(meta);
-        else
-            throw new ArgumentException("Invalid meta data for checksum " + checksum.ToString());
-        */
     }
-
-    /*
-    // XXX: Both should zip. No special handling required for 2D/3D.
-
-    // Returns a byte array of an image file.
-    private byte[] get2DAssetBytes(ArtMetaData meta)
-        => File.ReadAllBytes(meta.AbsolutePath);
-
-    // Returns a byte array of a zip with 3D assets.
-    private byte[] get3DAssetBytes(ArtMetaData meta)
-        //=> Util.ZipDirectory(meta.AbsolutePath, meta.Checksum.ToString());
-        => Util.ZipDirectory(meta.AbsolutePath);
-    //*/
 
     // For invocations of RPC().
     // TODO: use a member variable instead?
@@ -277,27 +216,20 @@ public class SerilazingArt : MonoBehaviourPunCallbacks
       GameObject.Find(tag).GetComponent<SpriteRenderer>().sprite = sprite;
     }
 
-    public void SetObj(string tag, GameObject obj)
+    public void SetObj(string tag, GameObject loadedObj)
     {
         GameObject slot = GameObject.Find(tag);
         Vector3 position = slot.transform.position;
         Destroy(slot);
-        GameObject loadedObj = obj;
-        Debug.Log("Loaded obj");
         loadedObj.transform.position = position;
         loadedObj.name = tag;
-        Debug.Log("moved obj");
         Vector3 desiredSize = new Vector3(1.6f, 1.6f, 1.6f);
-        foreach (Transform t in loadedObj.transform) {
-
-            /*Bounds a = t.GetComponent<MeshRenderer>().bounds;
-              Vector3 desiredSize = a.max - a.min;
-              Debug.Log(desiredSize.ToString());*/
+        foreach (Transform t in loadedObj.transform)
+        {
             Bounds b = t.GetComponent<MeshRenderer>().bounds;
             Vector3 a = b.max - b.min;
             float max = Mathf.Max(Mathf.Max(a.x, a.y), a.z);
             t.transform.localScale = t.transform.localScale * (1.6f/max);
-
         }
     }
 

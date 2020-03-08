@@ -66,40 +66,25 @@ public class Checksum
  * - art piece to display in this slot
  *   (might consist of multiple pieces of meta data or possibly only the checksum identifying the art)
  */
-// TODO: add a way to actually create room settings.
 public class RoomSettings
 {
-    public int MaxVisitors { get; }
-    public string GalleryName { get; }
+    public int MaxVisitors { get; set; }
+    public string GalleryName { get; set; }
     public Dictionary<int,SlotSettings> Slots { get; }
+
+    public RoomSettings() : this(new Dictionary<int,SlotSettings>())
+    {}
 
     private RoomSettings(Dictionary<int,SlotSettings> settings)
     {
         Slots = settings;
     }
 
-    // XXX: Just for testing.
-    public static RoomSettings GetTestRoomSettings()
-    {
-        Dictionary<int,SlotSettings> settings = new Dictionary<int,SlotSettings>();
-        //ArtRegistry reg = ArtRegistry.GetEmptyArtRegistry();
-        ArtRegistry reg = AppSettings.GetAppSettings().ArtRegistry;
-        int nr = 5;
-        foreach (ArtMetaData meta in reg.GetAll())
-        {
-            settings.Add(nr, new SlotSettings(nr, meta));
-            nr++;
-        }
-        return new RoomSettings(settings);
-    }
-
     public ArtManifest GetManifest()
     {
         List<SlotSettings> tmp = new List<SlotSettings>();
         foreach (SlotSettings slot in Slots.Values)
-        {
             tmp.Add(slot.WithMeta(slot.MetaData.MakeRelativePath()));
-        }
         return new ArtManifest(tmp);
     }
 
@@ -110,9 +95,7 @@ public class RoomSettings
         tmp.Add("GalleryName", GalleryName);
         Dictionary<string,string> slots = new Dictionary<string,string>();
         foreach (KeyValuePair<int,SlotSettings> kv in Slots)
-        {
             slots.Add(kv.Key.ToString(), kv.Value.ToJSON());
-        }
         tmp.Add("Slots", Serial.DictToJSON(slots));
         return Serial.DictToJSON(tmp);
     }
@@ -120,12 +103,9 @@ public class RoomSettings
     public static RoomSettings FromJSON(string json)
     {
         Dictionary<string,string> tmp = Serial.DictFromJSON(json);
-        int slotNumber = Int32.Parse(tmp["SlotNumber"]);
-        Dictionary<int,SlotSettings> slots = new Dictionary<int,SlotSettings>();
-        foreach (KeyValuePair<string,string> kv in tmp)
-        {
-            slots.Add(Int32.Parse(kv.Key), SlotSettings.FromJSON(kv.Value));
-        }
+        int maxVisitors = Int32.Parse(tmp["MaxVisitors"]);
+        string name = tmp["GalleryName"];
+        Dictionary<int,SlotSettings> slots = Serial.DictFromJSON(tmp["Slots"], Int32.Parse, SlotSettings.FromJSON);
         return new RoomSettings(slots);
     }
 
@@ -157,9 +137,10 @@ public class SlotSettings
     }
 
     public static SlotSettings FromJSON(string json)
+        => FromJSON(json, AppSettings.GetAppSettings().ArtRegistry);
+
+    public static SlotSettings FromJSON(string json, ArtRegistry reg)
     {
-        //ArtRegistry reg = ArtRegistry.GetArtRegistry();
-        ArtRegistry reg = AppSettings.GetAppSettings().ArtRegistry;
         Dictionary<string,string> tmp = Serial.DictFromJSON(json);
         int slotNumber = Int32.Parse(tmp["SlotNumber"]);
         ArtMetaData metaData = reg.Get(Checksum.FromString(tmp["Checksum"]));
@@ -199,33 +180,8 @@ public class ArtMetaData
     public bool IsSculpture { get => Type == ArtType.Sculpture; }
 
     // TODO: rename?
-    // NOTE: no longer changes the file name to the checksum. Just takes uses the file name.
-    // For export to visitors.
-    //// NOT TRUE: Changes the file name to the file's checksum (as a hex string).
-    // Makes the filename the whole path (so strips off the prefix).
-    public ArtMetaData MakeRelativePath() {
-        //string ext = Path.GetExtension(FileName);
-        //string fileName = Path.ChangeExtension(Checksum.ToString(), ext);
-        //return new ArtMetaData(ArtTitle, ArtistName, fileName, Type, Checksum);
-        return new ArtMetaData(ArtTitle, ArtistName, FileName, Type, Checksum);
-    }
-
-    /*
-    // XXX
-    private ArtMetaData MakeRelativePath2D()
-    {
-        string ext = Path.GetExtension(FileName);
-        string fileName = Path.ChangeExtension(Checksum.ToString(), ext);
-        return new ArtMetaData(ArtTitle, ArtistName, fileName, Type, Checksum);
-    }
-
-    // XXX
-    private ArtMetaData MakeRelativePath3D()
-    {
-        string fileName = Path.Combine(Checksum.ToString(), FileName);
-        return new ArtMetaData(ArtTitle, ArtistName, fileName, Type, Checksum);
-    }
-    */
+    public ArtMetaData MakeRelativePath()
+        => new ArtMetaData(ArtTitle, ArtistName, FileName, Type, Checksum);
 
     // TODO: rename?
     // For importing by visitors.
@@ -261,23 +217,10 @@ public class ArtMetaData
     }
 
     public string ToJSON()
-    {
-        /*
-        Dictionary<string,string> tmp = new Dictionary<string,string>();
-        tmp.Add("ArtTitle", ArtTitle);
-        tmp.Add("ArtistName", ArtistName);
-        tmp.Add("Path", AbsolutePath);
-        tmp.Add("ArtType", Type.ToString());
-        tmp.Add("Checksum", Checksum.ToString());
-        */
-        return Serial.DictToJSON(ToDict());
-    }
+        => Serial.DictToJSON(ToDict());
 
     public static ArtMetaData FromJSON(string json)
-    {
-        Dictionary<string,string> tmp = Serial.DictFromJSON(json);
-        return FromDict(tmp);
-    }
+        => FromDict(Serial.DictFromJSON(json));
 
 }
 
@@ -289,33 +232,9 @@ public class ArtMetaData
 [Serializable]
 public class ArtRegistry
 {
-    //private static ArtRegistry instance = new ArtRegistry();
 
     private string RegFile { get; }
     private Dictionary<Checksum,ArtMetaData> Metadata { get; }
-
-    // XXX: Creates a hard-coded registry.
-    /*
-    static ArtRegistry()
-    {
-        string path = "art/";
-        string artist = "Pixabay";
-        string title1 = "beautiful-calm-clouds-dark-206359";
-        string path1 = path + title1 + ".jpg";
-        string title2 = "flight-landscape-nature-sky-36717";
-        string path2 = path + title2 + ".jpg";
-        instance.AddArt(title1, artist, path1, ArtType.Painting);
-        instance.AddArt(title2, artist, path2, ArtType.Painting);
-        string artist3 = "Philip Ackermann";
-        string title3 = "scenic-view-of-mountain-1666021";
-        string path3 = path + title3 + ".jpg";
-        string artist4 = "Bell Co";
-        string title4 = "photo-of-a-turtle-underwater-847393";
-        string path4 = path + title4 + ".jpg";
-        instance.AddArt(title3, artist3, path3, ArtType.Painting);
-        instance.AddArt(title4, artist4, path4, ArtType.Painting);
-    }
-    */
 
     private ArtRegistry()
     {
@@ -359,6 +278,7 @@ public class ArtRegistry
     public ArtRegistry AddArt(ArtMetaData metaData)
     {
         Metadata.Put(metaData.Checksum, metaData);
+        //return Save(); // TODO: ???
         return this;
     }
 
@@ -371,42 +291,15 @@ public class ArtRegistry
     public ArtRegistry AddArt(string title, string artistName, string absolutePath, ArtType type)
         => AddArt(new ArtMetaData(title, artistName, absolutePath, type));
 
-    // TODO: automatically write to file when a change is made?
-    // TODO: should be possible to specify path?
-    public void Save()
+    public ArtRegistry Save()
+        => Save(RegFile);
+
+    public ArtRegistry Save(string file)
     {
         string json = Serial.ListToJSON<ArtMetaData>(GetAll(), art => art.ToJSON());
         File.WriteAllText(RegFile, json);
+        return this;
     }
-
-    /*
-    public string ToJSON()
-    {
-        List<string> tmp = new List<string>();
-        foreach (ArtMetaData meta in Metadata.Values)
-            tmp.Add(meta.ToJSON());
-        return Serial.ToJSON<List<string>>(tmp);
-        //return Serial.ListToJSON<ArtMetaData>(new List<ArtMetaData>(Metadata.Values), ArtMetaData.ToJSON);
-    }
-
-    public static ArtRegistry FromJSON(string json)
-    {
-        Dictionary<string,string> tmp = Dictionary<string,string>();
-        foreach (string s in Serial.FromJSON<List<string>>(json))
-        {
-            ArtMetaData meta = ArtMetaData.FromJSON(s);
-            tmp.Add(meta.Checksum, meta);
-        }
-        return new ArtRegistry(tmp);
-        //Dictionary<string,string> dict = Dictionary<string,string>();
-        //List<ArtMetaData> list = Serial.ListFromJSON<ArtMetaData>(json, ArtMetaData.FromJSON);
-    }
-
-    public static ArtRegistry FromJSONFile(string file)
-    {
-        return null;
-    }
-    */
 
 }
 
@@ -429,6 +322,12 @@ public class AppSettings
 
     private Dictionary<string, string> settings = new Dictionary<string,string>();
 
+    // XXX: should not be public. Either
+    //      - Use a property,
+    //      - extra methods for accessing the dictionary, or
+    //      - a separate gallery registry class.
+    public Dictionary<string,RoomSettings> galleries;
+
     // Set up default values.
     static AppSettings()
     {
@@ -439,6 +338,8 @@ public class AppSettings
         // Application.persistentDataPath is not available at compile time
         // and cannot be set as a default here. Must be added in the
         // constructor instead.
+        // TODO: However, that also means the AppSettings constructor cannot
+        // be used in a static context. So maybe don't add it to defaults at all?
     }
 
     private AppSettings()
@@ -454,11 +355,17 @@ public class AppSettings
         return instance.Load();
     }
 
+    private AppSettings Save()
+    {
+        ArtRegistry.Save();
+        return this;
+    }
+
     private AppSettings Load()
     {
         LoadSettings();
-        //LoadGalleries();  // TODO
         LoadArtRegistry();
+        LoadGalleries();
         return this;
     }
 
@@ -475,14 +382,26 @@ public class AppSettings
     private AppSettings LoadArtRegistry()
     {
         ArtRegistry = ArtRegistry.Load(registryFile());
-    //public ArtRegistry AddArt(string title, string artistName, string absolutePath, ArtType type)
-        ArtRegistry.AddArt("Patrick", "Patrick", "art/Patrick/Patrick.obj", ArtType.Sculpture);
+        return this;
+    }
+
+    public AppSettings AddGallery(RoomSettings gallery)
+    {
+        galleries[gallery.GalleryName] = gallery;
         return this;
     }
 
     private AppSettings LoadGalleries()
     {
-        // TODO: Load galleries (room settings)
+        string json = File.ReadAllText(galleriesFile());
+        galleries = Serial.DictFromJSON(json, s => s, RoomSettings.FromJSON);
+        return this;
+    }
+
+    private AppSettings SaveGalleries()
+    {
+        string json = Serial.DictToJSON(galleries, s => s, s => s.ToJSON());
+        File.WriteAllText(galleriesFile(), json);
         return this;
     }
 
@@ -492,15 +411,8 @@ public class AppSettings
     private string settingsFile()
         => getAbsolute(GetString(SettingsKey));
 
-    /*
-    private static ArtRegistry ReadArtRegistryFromFile(string file)
-    {
-        string json = File.ReadAllText(file);
-        ArtRegistry reg = ArtRegistry.GetArtRegistry();
-        ListFromJSON<ArtMetaData>(json, ArtMetaData.FromJSON).ForEach(reg.AddArt);
-        return reg;
-    }
-    */
+    private string galleriesFile()
+        => getAbsolute(GetString(GalleriesKey));
 
     private string GetString(string key) =>
         settings.GetValueOrDefault(key, defaults);
@@ -525,6 +437,11 @@ public class AppSettings
     public string RootPath
     {
         get => getPath(RootPathKey);
+    }
+
+    public string DownloadPath
+    {
+        get => getPath(DownloadsPathKey);
     }
 
     // TODO: *IF* it should be possible to point to a different root directory,
