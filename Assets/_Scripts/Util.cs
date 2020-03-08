@@ -23,8 +23,8 @@ public class Util
     //*/
 
     // Zip one (or more) explicitly specified file(s).
-    // Note that the path is stripped off. So the zip will contain entries
-    // consisting only of the (relative) file name.
+    // Note that the path is stripped from files. So the zip will contain
+    // entries consisting only of the (relative) file name.
     public static byte[] ZipFile(params string[] paths)
         => ZipFiles(paths);
 
@@ -40,46 +40,15 @@ public class Util
         return zip.ToArray();
     }
 
-    // Note that the path is stripped off. So the zip will contain entries
-    // consisting only of the (relative) file name.
+    // Note that the path is stripped from files. So the zip will contain
+    // entries consisting only of the (relative) file name.
+    // If path is a file, uses the path to the containing directory.
+    // So `some/path/to/a/file.ext` is treated as `some/path/to/a/`
     public static byte[] ZipDirectory(string path)
         => ZipFiles(Directory.EnumerateFiles(GetDirectory(path)));
 
-    // TODO: if the file path of the exported meta data looks like
-    // .../CHECKSUM/file.ext
-    // then there is no need to include that CHECKSUM directory as a prefix
-    // in the zip entry.
-    // In fact, only the file name has to be extracted at the sender side,
-    // and the receiver can attach the CHECKSUM directory prefix itself,
-    // producing root/CHECKSUM/file.ext.
-    // Since the checksum is known, there is no need to use it as the file
-    // name when exporting meta data.
-    // When unpacking a zip, the files can just be plain files, without a
-    // containing directory, and the receiver specifies the CHECKSUM as the
-    // target for extraction (whether 2D or 3D).
-
     // Zip all files in path. Optionally prefix the entries with a directory
     // name.
-    // If path is a file, uses the path to the containing directory.
-    // So `some/path/to/a/file.ext` is treated as `some/path/to/a/`
-
-    /*
-    // XXX: Deprecated
-    public static byte[] ZipDirectory(string path, string subdirPrefix = "")
-        => ZipDirectory(path, s => Path.Combine(subdirPrefix, s));
-
-    // XXX: Depreacted
-    public static byte[] ZipDirectory(string path, Func<string,string> rename)
-    {
-        path = GetDirectory(path);
-        MemoryStream zip = new MemoryStream();
-        ZipArchive archive = new ZipArchive(zip, ZipArchiveMode.Create);
-        foreach (string file in Directory.EnumerateFiles(path))
-            archive.CreateEntryFromFile(file, rename(file));
-        archive.Dispose();
-        return zip.ToArray();
-    }
-    */
 
     //*
     public static void UnzipAsset(byte[] zip, ArtMetaData meta)
@@ -112,8 +81,9 @@ public class Util
     public static byte[] ComputeSHA256OfFile(string path)
     {
         SHA256 sha = SHA256.Create();
-        FileStream fileStream = File.OpenRead(path);
-        return sha.ComputeHash(fileStream);
+        using (FileStream fileStream = File.OpenRead(path)) {
+          return sha.ComputeHash(fileStream);
+        }
     }
 
     // Computes the SHA256 hash of a directory by hashing all its files (and
