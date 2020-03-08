@@ -57,17 +57,16 @@ public class Serial
     public static Dictionary<string,string> DictFromJSON(string json) =>
         FromJSON<Dictionary<string,string>>(json);
 
-    //public static string DictToJSONFile(Dictionary<string,string> obj, string file) =>
+    public static void DictToJSONFile(Dictionary<string,string> obj, string file) =>
+        File.WriteAllText(file, DictToJSON(obj));
 
     //public static Dictionary<string,string> DictFromJSONFile(string file) =>
     // f -> (k -> v)
     public static Dictionary<K,V> DictFromJSONFile<K,V>(string file) =>
-        //DictFromJSON<K,V>(File.OpenRead(file).ReadAllText());
         Util.IsFile(file) ? DictFromJSON<K,V>(File.ReadAllText(file)) : new Dictionary<K,V>();
 
     // (t,f) -> IO
     public static void ToJSONFile<T>(T obj, string file) =>
-        //File.OpenWrite(file).WriteAllText(ToJSON<T>(obj));
         File.WriteAllText(file, ToJSON<T>(obj));
 
     // Low level. Converts any built-in type T (or any other with a
@@ -86,26 +85,15 @@ public class Serial
     // Low level. For Ts *without* the DataContract attribute.
     // t -> j
     public static string ToJSON<T>(T obj, Func<T,string> toString)
-    {
-        return ToJSON<string>(toString(obj));
-    }
+        => ToJSON<string>(toString(obj));
 
     // Low level. For Ts *without* the DataContract attribute.
     // t -> j
     public static string ListToJSON<T>(List<T> list, Func<T,string> toString)
-    {
-        return ToJSON<List<string>>(list.Map(toString));
-        /*
-        List<string> tmp = new List<string>(list.Count);
-        foreach (T obj in list)
-            tmp.Add(toString(obj));
-        return ToJSON<List<string>>(tmp);
-        */
-    }
+        => ToJSON<List<string>>(list.Map(toString));
 
     // f -> t
     public static T FromJSONFile<T>(string file) =>
-        //FromJSON<T>(File.OpenRead(file).ReadAllText());
         FromJSON<T>(File.ReadAllText(file));
 
     // Low level. Imports any built-in type T (or any other with a
@@ -121,21 +109,11 @@ public class Serial
     // Low level. For Ts *without* the DataContract attribute.
     // j -> t
     public static T FromJSON<T>(string json, Func<string,T> fromString)
-    {
-        return fromString(json);
-    }
+        => fromString(json);
 
     // Low level. For Ts *without* the DataContract attribute.
     // j -> t
     public static List<T> ListFromJSON<T>(string json, Func<string,T> fromString)
-    {
-        return FromJSON<List<string>>(json).Map(fromString);
-        /*
-        List<T> tmp = new List<T>();
-        foreach (string s in FromJSON<List<string>>(json))
-            tmp.Add(fromString(s));
-        return tmp;
-        */
-    }
+        => FromJSON<List<string>>(json).Map(fromString);
 
 }
