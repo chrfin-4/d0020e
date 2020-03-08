@@ -18,6 +18,7 @@ public class NetworkingController : MonoBehaviourPunCallbacks
     public GameObject eventSystem;
 
     public GameObject ClientPerson;
+    public GameObject menuGroup;
     
     public int usingVR;
 
@@ -26,6 +27,7 @@ public class NetworkingController : MonoBehaviourPunCallbacks
     void Start()
     {
         usingVR = XRDevice.isPresent ? usingVR = 1 : usingVR = 0;
+        //usingVR = 1;
         VRCheck();
         transform.GetComponent<UI>().setupCanvas();
         Connect();
@@ -163,12 +165,13 @@ public class NetworkingController : MonoBehaviourPunCallbacks
 
     void SpawnPerson() //Spawn person and activating movement script and main camera locally
     {
-        
         if(usingVR == 0)
         {
     	    ClientPerson = PhotonNetwork.Instantiate("Person", Vector3.zero, Quaternion.identity, 0);
             ClientPerson.GetComponent<Movement>().enabled = true;
-            ClientPerson.GetComponent<Menu>().standbyCam = transform.GetComponent<UI>().WASDStandby.gameObject;
+            ClientPerson.GetComponent<Menu>().enabled = true;
+            ClientPerson.GetComponent<VoiceChat>().enabled = true;
+            //ClientPerson.GetComponent<Menu>().standbyCam = transform.GetComponent<UI>().WASDStandby.gameObject;
             personCam = ClientPerson.transform.Find("Main Camera").gameObject;
             personCam.SetActive(true);
             ClientPerson.transform.Find("Face").gameObject.SetActive(false);
@@ -177,7 +180,9 @@ public class NetworkingController : MonoBehaviourPunCallbacks
         {
             ClientPerson = PhotonNetwork.Instantiate("VRPerson", new Vector3(0,0,0), Quaternion.identity,0);
             ClientPerson.transform.Find("Capsule").gameObject.SetActive(false);
-            ClientPerson.GetComponent<Menu>().standbyCam = transform.GetComponent<UI>().VRStandByCameraRig.gameObject;
+            ClientPerson.GetComponent<Menu>().enabled = true;
+            ClientPerson.GetComponent<VoiceChat>().enabled = true;
+            //ClientPerson.GetComponent<Menu>().standbyCam = transform.GetComponent<UI>().VRStandByCameraRig.gameObject;
             personCam = ClientPerson.transform.Find("TrackingSpace").gameObject;
             personCam.SetActive(true);
             ClientPerson.transform.Find("Face").gameObject.SetActive(false);
@@ -190,8 +195,10 @@ public class NetworkingController : MonoBehaviourPunCallbacks
            Hat.transform.SetParent(ClientPerson.transform, false);
            Hat.transform.position = new Vector3(0,0.7f,0);
         }
-        transform.GetComponent<UI>().WASDStandby.gameObject.SetActive(false);
-        transform.GetComponent<UI>().VRStandByCameraRig.gameObject.SetActive(false);
+        ClientPerson.GetComponent<Menu>().menuGroup = menuGroup;
+        ClientPerson.GetComponent<Menu>().menuGroup.SetActive(false);
+        //transform.GetComponent<UI>().WASDStandby.gameObject.SetActive(false);
+        //transform.GetComponent<UI>().VRStandByCameraRig.gameObject.SetActive(false);
 
 
     }    

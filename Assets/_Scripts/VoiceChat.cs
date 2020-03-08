@@ -10,7 +10,7 @@ public class VoiceChat : MonoBehaviourPunCallbacks
 {
 
     Recorder rec = null;
-    Speaker listener;
+    public Speaker listener;
     AudioSource aSource;
 
     bool audioSetupBool = true;
@@ -31,7 +31,7 @@ public class VoiceChat : MonoBehaviourPunCallbacks
 
     public void Mute()
     {
-        Debug.Log("Togglar mute");
+        Debug.Log("Togglar mute: " + listener.enabled.ToString() );
         if(listener.enabled)
         {
             listener.enabled = false;

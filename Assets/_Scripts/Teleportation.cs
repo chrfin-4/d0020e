@@ -76,13 +76,14 @@ public class Teleportation : MonoBehaviour
             {
                 //Debug.DrawRay(pointer.transform.position, pointer.transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow, 10);
                 //pointer.transform.TransformDirection(Vector3.forward) * hit.distance;
-                Debug.Log( "x: " + hit.point.x
+                /*Debug.Log( "x: " + hit.point.x
                         + " y: " + hit.point.y
                         + " z: " + hit.point.z
                         + "\nx: " + walkableBounds.x
                         + " y: " + height
                         + " z: " + walkableBounds.z
                         );
+                */
                 area.transform.position = new Vector3(
                     Mathf.Clamp(hit.point.x, -walkableBounds.x, walkableBounds.x),
                     height + 0.01f,

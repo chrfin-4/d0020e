@@ -179,11 +179,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 458044455560870957}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c89b2b9de01c0624bae870d5a7c6b9c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  listener: {fileID: 0}
 --- !u!82 &-4401529325765097983
 AudioSource:
   m_ObjectHideFlags: 0
@@ -301,13 +302,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 458044455560870957}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9795ceb3d2b914f49a60788144b3537b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   playerCam: {fileID: 7338169919642732051}
-  standbyCam: {fileID: 0}
+  menuGroup: {fileID: 0}
   moveScript: {fileID: 5343595938044574794}
   teleportation: {fileID: 0}
 --- !u!1 &1197920089337047361
