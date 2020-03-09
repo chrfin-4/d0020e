@@ -18,7 +18,7 @@ public class Menu : MonoBehaviour {
 	}
 
 	void FixedUpdate(){
-		if( Input.GetKeyDown(KeyCode.M) || OVRInput.Get(OVRInput.Button.Two) ){
+		if( Input.GetKeyDown(KeyCode.M) || OVRInput.GetDown(OVRInput.Button.Two) ){
 			ToggleMenu();
 		}
 	}

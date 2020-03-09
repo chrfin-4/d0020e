@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,12 +33,21 @@ public class Teleportation : MonoBehaviour
         CC = GetComponent<CharacterController>();
         areaRotation = area.transform.rotation;
         GameObject walkableArea = GameObject.FindGameObjectWithTag("Walkable");
-        height = walkableArea.transform.position.y;
-        walkableBounds = new Vector3(
+        Bounds b = walkableArea.GetComponent<MeshRenderer>().bounds;
+        Vector3 size = b.max -b.min;
+
+        height = b.max.y;
+        Debug.Log("Height: " + height.ToString());
+        //height = walkableArea.transform.position.y;
+        /*walkableBounds = new Vector3(
             (walkableArea.transform.lossyScale.x * 5) - (area.transform.lossyScale.x * 5),
             0,
             (walkableArea.transform.lossyScale.z * 5) - (area.transform.lossyScale.z * 5)
-        );
+        );*/
+    /*
+        b = area.GetComponent<MeshRenderer>().bounds;
+        Vector3 size2 = b.max -b.min;
+        walkableBounds = new Vector3(size.x - size2.x, 0, size.z - size2.z);*/
     }
 
     // Update is called once per frame
@@ -72,7 +81,7 @@ public class Teleportation : MonoBehaviour
             RaycastHit hit;
             Vector3 rPos = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch );
             Quaternion rRot = OVRInput.GetLocalControllerRotation(OVRInput.Controller.RTouch );
-            if (Physics.Raycast(transform.position, rRot * Vector3.forward, out hit))
+            if (Physics.Raycast(transform.position, rRot * Vector3.forward, out hit) && hit.transform.tag == "Walkable")
             {
                 //Debug.DrawRay(pointer.transform.position, pointer.transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow, 10);
                 //pointer.transform.TransformDirection(Vector3.forward) * hit.distance;
@@ -85,15 +94,18 @@ public class Teleportation : MonoBehaviour
                         );
                 */
                 area.transform.position = new Vector3(
-                    Mathf.Clamp(hit.point.x, -walkableBounds.x, walkableBounds.x),
+                    hit.point.x,
                     height + 0.01f,
-                    Mathf.Clamp(hit.point.z, -walkableBounds.z, walkableBounds.z)
+                    hit.point.z
                 );
                 //area.transform.rotation = Vector3.zero;
                 //Debug.Log("Obj - distance: " + hit.distance);
 
                 if (!area.GetComponent<Renderer>().enabled) 
                     area.GetComponent<Renderer>().enabled = !area.GetComponent<Renderer>().enabled;
+            }
+            else {
+                area.transform.position = new Vector3(transform.position.x, height + 0.01f, transform.position.z);
             }
 
             if (OVRInput.GetDown(LTrigger)) // LMB
