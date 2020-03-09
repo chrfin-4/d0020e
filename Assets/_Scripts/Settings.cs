@@ -393,6 +393,8 @@ public class AppSettings
 
     private AppSettings LoadGalleries()
     {
+        if (!Util.IsFile(galleriesFile()))
+          galleries = new Dictionary<string,RoomSettings>();
         string json = File.ReadAllText(galleriesFile());
         galleries = Serial.DictFromJSON(json, s => s, RoomSettings.FromJSON);
         return this;
