@@ -19,15 +19,9 @@ public class VoiceChat : MonoBehaviourPunCallbacks
     {
         listener = this.transform.gameObject.GetComponent<Speaker>();
         aSource = this.transform.gameObject.GetComponent<AudioSource>();
+        audioSetup();
     }
 
-    private void Update() {
-        if(audioSetupBool)
-        {
-            Debug.Log("Audio Setup");
-            audioSetup();
-        }
-    }
 
     public void Mute()
     {
@@ -36,12 +30,14 @@ public class VoiceChat : MonoBehaviourPunCallbacks
         {
             listener.enabled = false;
             (GetComponent("Recorder") as Recorder).TransmitEnabled = false;
+            GetComponent<AudioSource>().mute = true;
             aSource.enabled = false;
         }
         else
         {
             listener.enabled = true;
             (GetComponent("Recorder") as Recorder).TransmitEnabled = true;
+            GetComponent<AudioSource>().mute = false;
             aSource.enabled = true;
         }
     }

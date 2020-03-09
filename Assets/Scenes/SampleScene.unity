@@ -468,6 +468,7 @@ GameObject:
   - component: {fileID: 95912157}
   - component: {fileID: 95912158}
   - component: {fileID: 95912160}
+  - component: {fileID: 95912159}
   m_Layer: 0
   m_Name: GlobalScripts
   m_TagString: Untagged
@@ -520,7 +521,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   KeepAliveInBackground: 60000
   ApplyDontDestroyOnLoad: 1
-  logLevel: 1
+  logLevel: 5
   enableSupportLogger: 0
   updateInterval: 50
   statsResetInterval: 1000
@@ -544,6 +545,14 @@ MonoBehaviour:
   AutoLeaveAndDisconnect: 1
   AutoCreateSpeakerIfNotFound: 0
   usePunAppSettings: 1
+--- !u!81 &95912159
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 95912155}
+  m_Enabled: 0
 --- !u!114 &95912160
 MonoBehaviour:
   m_ObjectHideFlags: 0
