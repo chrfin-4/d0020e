@@ -8,7 +8,6 @@ using System.Collections.Generic;
 public class Util
 {
 
-    //*
     public static byte[] ZipAsset(ArtMetaData meta)
     {
         // Either use ZipDirectory to zip all files in the directory if 3D,
@@ -20,17 +19,16 @@ public class Util
         else
             throw new ArgumentException("Invalid meta data with checksum " + meta.Checksum.ToString());
     }
-    //*/
 
     // Zip one (or more) explicitly specified file(s).
     // Note that the path is stripped from files. So the zip will contain
     // entries consisting only of the (relative) file name.
     public static byte[] ZipFile(params string[] paths)
-        => ZipFiles(paths);
+        => ZipPaths(paths);
 
     // Note that the path is stripped off. So the zip will contain entries
     // consisting only of the (relative) file name.
-    public static byte[] ZipFiles(IEnumerable<string> paths)
+    public static byte[] ZipPaths(IEnumerable<string> paths)
     {
         MemoryStream zip = new MemoryStream();
         ZipArchive archive = new ZipArchive(zip, ZipArchiveMode.Create);
@@ -40,20 +38,43 @@ public class Util
         return zip.ToArray();
     }
 
-    // Note that the path is stripped from files. So the zip will contain
-    // entries consisting only of the (relative) file name.
+    private static List<string> getFileSystemEntries(string path, bool recursive = true)
+    {
+        List<string> result = new List<string>(Directory.EnumerateFiles(path));
+        if (!recursive)
+            return result;
+        foreach (string dir in Directory.EnumerateDirectories(path))
+            result.AddRange(getFileSystemEntries(dir, recursive));
+        return result;
+    }
+
+    // XXX: This is kinda hacky. :/
+    // If recursive, zips all entries, including sub directories.
     // If path is a file, uses the path to the containing directory.
     // So `some/path/to/a/file.ext` is treated as `some/path/to/a/`
-    public static byte[] ZipDirectory(string path)
-        => ZipFiles(Directory.EnumerateFiles(GetDirectory(path)));
+    public static byte[] ZipDirectory(string path, bool recursive = true)
+    {
+        path = GetDirectory(path);
+        MemoryStream zip = new MemoryStream();
+        ZipArchive archive = new ZipArchive(zip, ZipArchiveMode.Create);
+        foreach (string file in getFileSystemEntries(path, recursive))
+        {
+            string entryName = removePrefix(file, path + Path.DirectorySeparatorChar);
+            archive.CreateEntryFromFile(file, entryName);
+        }
+        archive.Dispose();
+        return zip.ToArray();
+    }
 
-    // Zip all files in path. Optionally prefix the entries with a directory
-    // name.
+    private static string removePrefix(string s, string prefix)
+    {
+        if (!s.StartsWith(prefix))
+            throw new ArgumentException(prefix + " not a prefix of " + s);
+        return s.Substring(prefix.Length);
+    }
 
-    //*
     public static void UnzipAsset(byte[] zip, ArtMetaData meta)
         => Unzip(zip, GetDirectory(meta.AbsolutePath));
-    //*/
 
     public static void Unzip(byte[] zip, string dir)
     {

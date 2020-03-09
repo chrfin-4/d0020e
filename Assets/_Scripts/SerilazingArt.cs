@@ -58,8 +58,8 @@ public class SerilazingArt : MonoBehaviourPunCallbacks
     [PunRPC]
     private void ReceiveManifestRPC(byte[] manifest)
     {
-        // XXX: For testing. Visitor client has no assets.
-        artReg = ArtRegistry.GetEmptyArtRegistry();
+        // XXX: For testing. Simulate that client has no art assets.
+        //artReg = ArtRegistry.GetEmptyArtRegistry();
         ArtManifest artManifest = Serial.DeserializeByteArray<ArtManifest>(manifest);
         slotSettings = new Dictionary<Checksum,SlotSettings>();
         List<Checksum> missing = new List<Checksum>();
@@ -173,7 +173,7 @@ public class SerilazingArt : MonoBehaviourPunCallbacks
     {
         byte[] manifest = Serial.SerializableToByteArray(artManifest);
         This().RPC("ReceiveManifestRPC", RpcTarget.OthersBuffered, manifest);
-        //This().RPC("ReceiveManifestRPC", RpcTarget.AllBuffered, manifest);  // XXX: testing
+        //This().RPC("ReceiveManifestRPC", RpcTarget.AllBuffered, manifest);  // XXX: testing (export to self)
     }
 
     // Request these assets by telling the master client to export them.
