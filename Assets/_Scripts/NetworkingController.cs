@@ -78,7 +78,7 @@ public class NetworkingController : MonoBehaviourPunCallbacks
     	SpawnPerson();
         if(PhotonNetwork.IsMasterClient)
         {
-            RoomSettings room = RoomSettings.GetTestRoomSettings();
+            RoomSettings room = AppSettings.GetAppSettings().galleries["Test 2D and 3D"];
             ClientPerson.GetComponent<SerilazingArt>().ExportArt(room);
         }
     }
