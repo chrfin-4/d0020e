@@ -24,6 +24,8 @@ public class AdminEditViewScript : MonoBehaviour
     public GameObject Environment;
 	public GameObject UIButton; // TODO Get this from UI script instead
 	private EditSettings Settings;
+	private Canvas EditCanvas;
+	private GameObject ActiveSlot;
 	
 	// To easily swap out listener method
 	//public void AdminEditListenerCall((HighlightEventType type, GameObject artSlot) ev) =>
@@ -37,11 +39,16 @@ public class AdminEditViewScript : MonoBehaviour
         Vector3 roomPos = Environment.transform.position;
         transform.position = new Vector3(roomPos.x, 30.0f, roomPos.z);
         transform.rotation = Quaternion.Euler(90.0f, 0f, 0f);
+		ActiveSlot = null;
     }
 
     void OnEnable()
     {
 		Settings = new EditSettings(gameObject.GetComponent<Camera>(), ArtSlotEvent, UIButton);
+		
+		EditCanvas = Environment.transform.Find("EditCanvas2").GetComponent<Canvas>();
+		EditCanvas.worldCamera = gameObject.GetComponent<Camera>();
+		
         GameObject ArtSlots = Environment.transform.Find("ArtSlots").gameObject;
         ArtSlots.GetComponent<SlotMasterScript>().StartEditMode(Settings);
         //ArtSlots.GetComponent<SlotMasterScript>().AddHighlightListeners(ArtSlotEvent);
@@ -80,20 +87,39 @@ public class AdminEditViewScript : MonoBehaviour
 			case HighlightEventType.ClickOn:
 			{
 				Debug.Log("Art slot " + ev.artSlot + " click on");
+				SlotClickedOn(ev.artSlot);
 				break;
 			}
+			
 			case HighlightEventType.MouseEnter:
 			{
 				Debug.Log("Art slot " + ev.artSlot + " mouse enter");
 				ev.artSlot.GetComponent<PaintingSlotScript>().SetHighlightColor(Color.yellow);
 				break;
 			}
+			
 			case HighlightEventType.MouseExit:
 			{
 				Debug.Log("Art slot " + ev.artSlot + " mouse exit");
-				ev.artSlot.GetComponent<PaintingSlotScript>().ResetHighlightColor();
+				if (ActiveSlot == null)
+					ev.artSlot.GetComponent<PaintingSlotScript>().ResetHighlightColor();
 				break;
 			}
 		};
     }
+
+	void SlotClickedOn(GameObject artSlot)
+	{
+		if (ActiveSlot == artSlot) // Deselect slot
+		{
+			ActiveSlot = null;
+			EditCanvas.gameObject.SetActive(false);
+		}
+		else // Select slot
+		{
+			ActiveSlot = artSlot;
+			EditCanvas.gameObject.SetActive(true);
+		}
+	}
+	
 }

@@ -49,7 +49,7 @@ public class SlotMasterScript : MonoBehaviour
 			slotScript.UIButton = settings.UIButton;
 			slotScript.SetEditMode(true);
 			slotScript.AddHighlightListener(Settings.EditListenerCall);
-			slotScript.setCamera(Settings.EditViewCamera);
+			//slotScript.setCamera(Settings.EditViewCamera);
 			
 		}
     }

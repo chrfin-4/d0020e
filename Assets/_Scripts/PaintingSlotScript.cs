@@ -58,7 +58,7 @@ public class PaintingSlotScript : MonoBehaviour
 			Vector3 artPos = transform.position;
 			EditCanvas.transform.position = new Vector3(artPos.x - 4.0f, artPos.y + 3.0f, artPos.z);
 			EditCanvas.transform.eulerAngles = new Vector3(90.0f, 0.0f, 0.0f);
-			SetArtButton();
+			//SetArtButton();
 		}
 	}
 	
@@ -68,7 +68,7 @@ public class PaintingSlotScript : MonoBehaviour
     public void AddHighlightListener(UnityAction<(HighlightEventType, GameObject)> call) =>
         Highlight.GetComponent<ArtSlotListener>().ev.AddListener(call);
 
-	void SetArtButton()
+	/*void SetArtButton()
     {
         GameObject uiButtonInstance = Instantiate(UIButton);
         Button button = uiButtonInstance.GetComponent<Button>();
@@ -79,10 +79,11 @@ public class PaintingSlotScript : MonoBehaviour
         button.transform.SetParent(EditCanvas.transform, false);
         //button.onClick.AddListener(() => {});
 
-        //Vector3 pos = new Vector3(0.0f , 0.0f, 0.0f);
-        uiButtonInstance.transform.position = Vector3.zero;
+        //Vector3 pos = new Vector3(EditCanvas.transform.x, EditCanvas.transform.y, EditCanvas.transform.z);
+        uiButtonInstance.transform.position = EditCanvas.transform.position;
+        //uiButtonInstance.transform.position = Vector3.zero;
 
         //buttons.Add(uiButtonInstance);
-    }
+    }*/
 	
 }
