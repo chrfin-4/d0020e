@@ -18,13 +18,39 @@ public class EditSettings
 	}
 }
 
+public class EditUI
+{
+	public Canvas EditCanvas;
+
+	public Button SetArtOnSlotButton;
+	public Button SaveMetaButton;
+
+	public Text ArtTypeText;
+	public Text ArtTitleText;
+	public Text ArtistText;
+
+	public EditUI(Canvas editCanvas)
+	{
+		EditCanvas = editCanvas;
+		SetArtOnSlotButton = EditCanvas.transform.Find("SetArtOnSlotButton").GetComponent<Button>();
+		
+		Transform metadata = EditCanvas.transform.Find("Metadata");
+		SaveMetaButton = metadata.Find("SaveMetaButton").GetComponent<Button>();
+		ArtTypeText = metadata.Find("Type").Find("Value").GetComponent<Text>();
+		ArtTitleText = metadata.Find("ArtTitle").Find("InputField").Find("Text").GetComponent<Text>();
+		ArtistText = metadata.Find("Artist").Find("InputField").Find("Text").GetComponent<Text>();
+	}
+
+}
+
 public class AdminEditViewScript : MonoBehaviour
 {
 
     public GameObject Environment;
 	public GameObject UIButton; // TODO Get this from UI script instead
+	public EditUI EditingUI;
 	private EditSettings Settings;
-	private Canvas EditCanvas;
+	//private Canvas EditCanvas;
 	
 	private GameObject _activeSlot; // XXX Appearently you have to do this for happiness.
 	private GameObject ActiveSlot
@@ -39,7 +65,7 @@ public class AdminEditViewScript : MonoBehaviour
 				_activeSlot.GetComponent<PaintingSlotScript>().ResetHighlightColor();
 			
 			_activeSlot = value;
-			EditCanvas.gameObject.SetActive(_activeSlot != null);
+			EditingUI.EditCanvas.gameObject.SetActive(_activeSlot != null);
 		}
 	}
 	
@@ -62,15 +88,17 @@ public class AdminEditViewScript : MonoBehaviour
     {
 		Settings = new EditSettings(gameObject.GetComponent<Camera>(), ArtSlotEvent, UIButton);
 		
-		EditCanvas = transform.Find("EditCanvas2").GetComponent<Canvas>();
+		//EditCanvas = transform.Find("EditCanvas2").GetComponent<Canvas>();
+		EditingUI = new EditUI(transform.Find("EditCanvas2").GetComponent<Canvas>());
 		//EditCanvas.gameObject.SetActive(true);
-		EditCanvas.worldCamera = gameObject.GetComponent<Camera>();
+		EditingUI.EditCanvas.worldCamera = gameObject.GetComponent<Camera>();
 		
+
+		EditingUI.SetArtOnSlotButton.onClick.AddListener(SetArtOnSlot);
+		EditingUI.SaveMetaButton.onClick.AddListener(SaveMetadata);
+
         GameObject ArtSlots = Environment.transform.Find("ArtSlots").gameObject;
         ArtSlots.GetComponent<SlotMasterScript>().StartEditMode(Settings);
-		
-		
-		
     }
 
     void ArtSlotEvent((HighlightEventType type, GameObject artSlot) ev)
@@ -115,4 +143,13 @@ public class AdminEditViewScript : MonoBehaviour
 	}
 	
 	
+	void SetArtOnSlot()
+	{
+		Debug.Log("Hello guys.");
+	}
+	
+	void SaveMetadata()
+	{
+		Debug.Log("Can't fool me twice");
+	}
 }
