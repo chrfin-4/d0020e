@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
@@ -46,7 +46,7 @@ public class VoiceChat : MonoBehaviourPunCallbacks
     {
         audioSetupBool = false;
         (GetComponent("Recorder") as Recorder).TransmitEnabled = true;
-        (GetComponent("Recorder") as Recorder).DebugEchoMode = false;
+        (GetComponent("Recorder") as Recorder).DebugEchoMode = true;
 
     }
     
