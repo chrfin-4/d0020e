@@ -419,11 +419,11 @@ public class AppSettings
         return this;
     }
 
-    private string registryFile() => getAbsolute(ArtRegPathKey);
+    private string registryFile() => getPath(ArtRegPathKey);
 
-    private string settingsFile() => getAbsolute(SettingsKey);
+    private string settingsFile() => getPath(SettingsKey);
 
-    private string galleriesFile() => getAbsolute(GalleriesKey);
+    private string galleriesFile() => getPath(GalleriesKey);
 
     private string GetString(string key)
         => settings.GetValueOrDefault(key, defaults);
