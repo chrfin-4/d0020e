@@ -25,7 +25,23 @@ public class AdminEditViewScript : MonoBehaviour
 	public GameObject UIButton; // TODO Get this from UI script instead
 	private EditSettings Settings;
 	private Canvas EditCanvas;
-	private GameObject ActiveSlot;
+	
+	private GameObject _activeSlot; // XXX Appearently you have to do this for happiness.
+	private GameObject ActiveSlot
+	{
+		get => _activeSlot;
+		set
+		{
+			// De-highlight the slot:
+			//		_activeSlot is null if no slot is selected
+			//		value is null if we just deselected a slot
+			if (_activeSlot != null && value != null)
+				_activeSlot.GetComponent<PaintingSlotScript>().ResetHighlightColor();
+			
+			_activeSlot = value;
+			EditCanvas.gameObject.SetActive(_activeSlot != null);
+		}
+	}
 	
 	// To easily swap out listener method
 	//public void AdminEditListenerCall((HighlightEventType type, GameObject artSlot) ev) =>
@@ -46,38 +62,15 @@ public class AdminEditViewScript : MonoBehaviour
     {
 		Settings = new EditSettings(gameObject.GetComponent<Camera>(), ArtSlotEvent, UIButton);
 		
-		EditCanvas = Environment.transform.Find("EditCanvas2").GetComponent<Canvas>();
+		EditCanvas = transform.Find("EditCanvas2").GetComponent<Canvas>();
+		//EditCanvas.gameObject.SetActive(true);
 		EditCanvas.worldCamera = gameObject.GetComponent<Camera>();
 		
         GameObject ArtSlots = Environment.transform.Find("ArtSlots").gameObject;
         ArtSlots.GetComponent<SlotMasterScript>().StartEditMode(Settings);
-        //ArtSlots.GetComponent<SlotMasterScript>().AddHighlightListeners(ArtSlotEvent);
-
-        //foreach (Transform artSlot in ArtSlots.transform) {
-        //    Transform highlight = artSlot.Find("Highlight");
-        //    Debug.Log(artSlot);
-        //    artSlot.GetComponent<PaintingSlotScript>().SetEditMode(true);
-        //    artSlot.GetComponent<PaintingSlotScript>().AddHighlightListener(ArtSlotEvent);
-            //highlight.GetComponent<ArtSlotListener>().ev.AddListener(ArtSlotEvent);
-            //GameObject highlight = Instantiate(Highlight, artSlot.transform.position, artSlot.transform.rotation);
-            //highlight.transform.position = artSlot.transform.position;
-            //highlight.SetActive(true);
-            //Debug.Log("Setting " + highlight + " active");
-            //highlight.gameObject.SetActive(true);
-            //highlight.gameObject.GetComponent<MeshRenderer>().SetActive(true);
-            //highlight.GetComponent<ArtSlotListener>().ev.AddListener(ClickOnEvent);
-        //}
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        //GameObject ArtSlots = Environment.transform.Find("ArtSlots").gameObject;
-        //foreach (Transform child in ArtSlots.transform)
-        //{
-        //    Sprite sprite = IMG2Sprite.instance.LoadNewSprite("bil.png");
-        //    child.GetComponent<SpriteRenderer>().sprite = sprite;
-        //}
+		
+		
+		
     }
 
     void ArtSlotEvent((HighlightEventType type, GameObject artSlot) ev)
@@ -101,7 +94,7 @@ public class AdminEditViewScript : MonoBehaviour
 			case HighlightEventType.MouseExit:
 			{
 				Debug.Log("Art slot " + ev.artSlot + " mouse exit");
-				if (ActiveSlot == null)
+				if (ActiveSlot != ev.artSlot)
 					ev.artSlot.GetComponent<PaintingSlotScript>().ResetHighlightColor();
 				break;
 			}
@@ -110,16 +103,16 @@ public class AdminEditViewScript : MonoBehaviour
 
 	void SlotClickedOn(GameObject artSlot)
 	{
-		if (ActiveSlot == artSlot) // Deselect slot
-		{
-			ActiveSlot = null;
-			EditCanvas.gameObject.SetActive(false);
-		}
-		else // Select slot
-		{
-			ActiveSlot = artSlot;
-			EditCanvas.gameObject.SetActive(true);
-		}
+		ActiveSlot = ActiveSlot != artSlot ? artSlot : null;
+		//if (ActiveSlot == artSlot) // Deselect slot
+		//{
+		//	ActiveSlot = null;
+		//}
+		//else // Select slot
+		//{
+		//	ActiveSlot = artSlot;
+		//}
 	}
+	
 	
 }
