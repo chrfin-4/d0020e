@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class PaintingSlotScript : MonoBehaviour
 {
 	
-    public SlotSettings Settings;
+    public int Number;
     //public HighlightClickedOnEvent ev = new HighlightClickedOnEvent();
     //private bool EditMode = false;
     public GameObject Highlight;

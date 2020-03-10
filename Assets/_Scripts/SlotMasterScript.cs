@@ -8,7 +8,7 @@ public class SlotMasterScript : MonoBehaviour
 
     private int slots = 0;
 	private bool EditMode = false;
-	private EditSettings Settings;
+	//private EditSettings Settings;
     //public RoomSettings roomSettings;
 
     // Start is called before the first frame update
@@ -39,18 +39,18 @@ public class SlotMasterScript : MonoBehaviour
         }
     }
 	
-	public void StartEditMode(EditSettings settings)
+	public void StartEditMode(UnityAction<(HighlightEventType, GameObject)> call)
     {
         EditMode = true;
-		Settings = settings;
+		int i = 0;
 		foreach (Transform artSlot in transform)
 		{
 			PaintingSlotScript slotScript = artSlot.GetComponent<PaintingSlotScript>();
-			slotScript.UIButton = settings.UIButton;
+			//slotScript.UIButton = settings.UIButton;
 			slotScript.SetEditMode(true);
-			slotScript.AddHighlightListener(Settings.EditListenerCall);
+			slotScript.AddHighlightListener(call);
 			//slotScript.setCamera(Settings.EditViewCamera);
-			
+			slotScript.Number = i++;
 		}
     }
 	

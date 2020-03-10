@@ -18,27 +18,41 @@ public class EditSettings
 	}
 }
 
+/*public class OptionMetadataEntry : UnityEngine.UI.OptionData
+{
+	
+}*/
+
 public class EditUI
 {
 	public Canvas EditCanvas;
 
 	public Button SetArtOnSlotButton;
 	public Button SaveMetaButton;
+	public Button SaveGalleryButton;
 
 	public Text ArtTypeText;
-	public Text ArtTitleText;
-	public Text ArtistText;
+	public InputField ArtTitleText;
+	public InputField ArtistText;
+	public InputField GalleryNameText;
+	
+	public Dropdown ArtDropdown;
 
 	public EditUI(Canvas editCanvas)
 	{
 		EditCanvas = editCanvas;
+		
 		SetArtOnSlotButton = EditCanvas.transform.Find("SetArtOnSlotButton").GetComponent<Button>();
+		SaveGalleryButton = EditCanvas.transform.Find("SaveGalleryButton").GetComponent<Button>();
+		
+		ArtDropdown = EditCanvas.transform.Find("ArtDropdown").GetComponent<Dropdown>();
+		GalleryNameText = EditCanvas.Find("GalleryName").GetComponent<InputField>();
 		
 		Transform metadata = EditCanvas.transform.Find("Metadata");
 		SaveMetaButton = metadata.Find("SaveMetaButton").GetComponent<Button>();
 		ArtTypeText = metadata.Find("Type").Find("Value").GetComponent<Text>();
-		ArtTitleText = metadata.Find("ArtTitle").Find("InputField").Find("Text").GetComponent<Text>();
-		ArtistText = metadata.Find("Artist").Find("InputField").Find("Text").GetComponent<Text>();
+		ArtTitleText = metadata.Find("ArtTitle").Find("InputField").GetComponent<InputField>();
+		ArtistText = metadata.Find("Artist").Find("InputField").GetComponent<InputField>();
 	}
 
 }
@@ -48,9 +62,11 @@ public class AdminEditViewScript : MonoBehaviour
 
     public GameObject Environment;
 	public GameObject UIButton; // TODO Get this from UI script instead
-	public EditUI EditingUI;
-	private EditSettings Settings;
+	public EditUI EditUI;
+	private RoomSettings Gallery;
 	//private Canvas EditCanvas;
+	
+	private List<ArtMetaData> MetadataList;
 	
 	private GameObject _activeSlot; // XXX Appearently you have to do this for happiness.
 	private GameObject ActiveSlot
@@ -65,9 +81,11 @@ public class AdminEditViewScript : MonoBehaviour
 				_activeSlot.GetComponent<PaintingSlotScript>().ResetHighlightColor();
 			
 			_activeSlot = value;
-			EditingUI.EditCanvas.gameObject.SetActive(_activeSlot != null);
+			EditUI.EditCanvas.gameObject.SetActive(_activeSlot != null);
 		}
 	}
+	
+	private ArtMetaData Metadata;
 	
 	// To easily swap out listener method
 	//public void AdminEditListenerCall((HighlightEventType type, GameObject artSlot) ev) =>
@@ -85,20 +103,28 @@ public class AdminEditViewScript : MonoBehaviour
     }
 
     void OnEnable()
-    {
-		Settings = new EditSettings(gameObject.GetComponent<Camera>(), ArtSlotEvent, UIButton);
+    {		
+		Gallery = new RoomSettings();
 		
 		//EditCanvas = transform.Find("EditCanvas2").GetComponent<Canvas>();
-		EditingUI = new EditUI(transform.Find("EditCanvas2").GetComponent<Canvas>());
+		EditUI = new EditUI(transform.Find("EditCanvas2").GetComponent<Canvas>());
 		//EditCanvas.gameObject.SetActive(true);
-		EditingUI.EditCanvas.worldCamera = gameObject.GetComponent<Camera>();
+		EditUI.EditCanvas.worldCamera = gameObject.GetComponent<Camera>();
+
+		EditUI.SetArtOnSlotButton.onClick.AddListener(SetArtOnSlot);
+		EditUI.SaveMetaButton.onClick.AddListener(SaveMetadata);
+
+		MetadataList = AppSettings.GetAppSettings().ArtRegistry.GetAll();
+		EditUI.ArtDropdown.AddOptions(MetadataList.Map(a => a.ArtTitle));
+
+		EditUI.SaveGalleryButton.onClick.AddListener(ViewMetadata);
+		
+		EditUI.ArtDropdown.onValueChanged.AddListener(ViewMetadata);
+		
 		
 
-		EditingUI.SetArtOnSlotButton.onClick.AddListener(SetArtOnSlot);
-		EditingUI.SaveMetaButton.onClick.AddListener(SaveMetadata);
-
         GameObject ArtSlots = Environment.transform.Find("ArtSlots").gameObject;
-        ArtSlots.GetComponent<SlotMasterScript>().StartEditMode(Settings);
+        ArtSlots.GetComponent<SlotMasterScript>().StartEditMode(ArtSlotEvent);
     }
 
     void ArtSlotEvent((HighlightEventType type, GameObject artSlot) ev)
@@ -145,11 +171,28 @@ public class AdminEditViewScript : MonoBehaviour
 	
 	void SetArtOnSlot()
 	{
+		int slotNumber = ActiveSlot.GetComponent<PaintingSlotScript>().Number;
+		Gallery.Slots[slotNumber] = new SlotSettings(slotNumber, Metadata);
 		Debug.Log("Hello guys.");
+		Debug.Log(Gallery.Slots.Count);
 	}
 	
 	void SaveMetadata()
 	{
 		Debug.Log("Can't fool me twice");
 	}
+	
+	void SaveGallery()
+	{
+		
+	}
+	
+	void ViewMetadata(int i)
+	{
+		Metadata = MetadataList[i];
+		EditUI.ArtTypeText.text = Metadata.Type.ToString();
+		EditUI.ArtTitleText.text = Metadata.ArtTitle;
+		EditUI.ArtistText.text = Metadata.ArtistName;
+	}
+	
 }
