@@ -85,7 +85,12 @@ public class NetworkingController : MonoBehaviourPunCallbacks
     	SpawnPerson();
         if(PhotonNetwork.IsMasterClient)
         {
-            RoomSettings room = RoomSettings.GetTestRoomSettings();
+            // FIXME:
+            //    Should not use a hard-coded gallery name.
+            //    Should not rearrange slots here. (Fix the gallery and/or art slots in the scene.)
+            RoomSettings room = AppSettings.GetAppSettings().galleries["Test 2D"];
+            room.Slots[1] = room.Slots[0];
+            room.Slots.Remove(0);
             ClientPerson.GetComponent<SerilazingArt>().ExportArt(room);
         }
     }
