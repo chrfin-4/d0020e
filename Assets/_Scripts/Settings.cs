@@ -273,13 +273,13 @@ public class ArtRegistry
 
     // TODO: automatically write to file when a change is made?
     // Can also be used to update meta data of existing art.
-    // As long as the asset is the same so that the checksum matches, the new
+    // As long as the asset is the same, so that the checksum matches, the new
     // metadata will replace the old.
     public ArtRegistry AddArt(ArtMetaData metaData)
     {
         Metadata.Put(metaData.Checksum, metaData);
-        //return Save(); // TODO: ???
-        return this;
+        return Save(); // TODO: ???
+        //return this;
     }
 
     public ArtRegistry Add2DArt(string title, string artistName, string absolutePath)
@@ -308,6 +308,9 @@ public class ArtRegistry
 // Or maybe the art registry itself (as an object)?
 // Maybe hold a directory where assets are downloaded to?
 // Relative file paths are relative to the root. (Absolute paths are absolute.)
+//
+// Uses UnityEngine.PlayerPrefs to store the RootPath.
+// Defaults to Application.persistentDataPath if not set in PlayerPrefs.
 public class AppSettings
 {
 
@@ -344,7 +347,8 @@ public class AppSettings
 
     private AppSettings()
     {
-        defaults.SetIfMissing(RootPathKey, Application.persistentDataPath);
+        PlayerPrefs.SetString(RootPathKey, "config");
+        defaults.SetIfMissing(RootPathKey, Application.persistentDataPath); // TODO: remove from defaults?
     }
 
     public static AppSettings GetAppSettings()
@@ -355,19 +359,13 @@ public class AppSettings
         return instance.Load();
     }
 
+    // TODO: unnecessary to save the art registry here if ArtRegistry
+    //    already saves automatically. But should it?
     private AppSettings Save()
-    {
-        ArtRegistry.Save();
-        return this;
-    }
+        => SaveSettings().SaveGalleries().SaveArtRegistry();
 
     private AppSettings Load()
-    {
-        LoadSettings();
-        LoadArtRegistry();
-        LoadGalleries();
-        return this;
-    }
+        => LoadSettings().LoadArtRegistry().LoadGalleries();
 
     private AppSettings LoadSettings()
     {
@@ -402,6 +400,12 @@ public class AppSettings
         return this;
     }
 
+    private AppSettings SaveSettings()
+    {
+        Serial.DictToJSONFile(settings, settingsFile());
+        return this;
+    }
+
     private AppSettings SaveGalleries()
     {
         string json = Serial.DictToJSON(galleries, s => s, s => s.ToJSON());
@@ -409,20 +413,23 @@ public class AppSettings
         return this;
     }
 
-    private string registryFile()
-        => getAbsolute(GetString(ArtRegPathKey));
+    private AppSettings SaveArtRegistry()
+    {
+        ArtRegistry.Save();
+        return this;
+    }
 
-    private string settingsFile()
-        => getAbsolute(GetString(SettingsKey));
+    private string registryFile() => getAbsolute(ArtRegPathKey);
 
-    private string galleriesFile()
-        => getAbsolute(GetString(GalleriesKey));
+    private string settingsFile() => getAbsolute(SettingsKey);
 
-    private string GetString(string key) =>
-        settings.GetValueOrDefault(key, defaults);
+    private string galleriesFile() => getAbsolute(GalleriesKey);
 
-    private int GetInt(string key) =>
-        Int32.Parse(GetString(key));
+    private string GetString(string key)
+        => settings.GetValueOrDefault(key, defaults);
+
+    private int GetInt(string key)
+        => Int32.Parse(GetString(key));
 
     private AppSettings SetString(string key, string val)
     {
@@ -430,17 +437,31 @@ public class AppSettings
         return this;
     }
 
-    public AppSettings SetInt(string key, int val) =>
-        SetString(key, val.ToString());
+    public AppSettings SetInt(string key, int val)
+        => SetString(key, val.ToString());
 
     public ArtRegistry ArtRegistry { get; set; }
 
+    // Returns the path associated with the key.
+    // Paths are always made absolute (relative) to RootPath unless they
+    // are already absolute.
     private string getPath(string key)
         => getAbsolute(GetString(key));
 
+    // RootPath is **ALWAYS** returned as an absolute path.
+    // Setting to an empty (or null) string removes the setting (and RootPath
+    // defaults to Application.persistentData again.
     public string RootPath
     {
-        get => getPath(RootPathKey);
+        get => Path.GetFullPath(PlayerPrefs.GetString(RootPathKey, Application.persistentDataPath));
+        set {
+            if (String.IsNullOrEmpty(value))
+                //settings.Remove(RootPathKey);
+                PlayerPrefs.DeleteKey(RootPathKey);
+            else
+                //SetString(RootPathKey, value);
+                PlayerPrefs.SetString(RootPathKey, value);
+        }
     }
 
     public string DownloadPath

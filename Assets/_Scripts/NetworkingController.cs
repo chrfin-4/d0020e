@@ -97,6 +97,9 @@ public class NetworkingController : MonoBehaviourPunCallbacks
         transform.GetComponent<UI>().DisplayButtons(rooms);
         if(PhotonNetwork.IsMasterClient)
         {
+            // FIXME:
+            //    Should not use a hard-coded gallery name.
+            //    Should not rearrange slots here. (Fix the gallery and/or art slots in the scene.)
             RoomSettings room = AppSettings.GetAppSettings().galleries["Test 2D and 3D"];
             room.Slots[5] = room.Slots[0];
             room.Slots.Remove(0);
