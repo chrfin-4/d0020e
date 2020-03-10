@@ -46,7 +46,7 @@ public class EditUI
 		SaveGalleryButton = EditCanvas.transform.Find("SaveGalleryButton").GetComponent<Button>();
 		
 		ArtDropdown = EditCanvas.transform.Find("ArtDropdown").GetComponent<Dropdown>();
-		GalleryNameText = EditCanvas.Find("GalleryName").GetComponent<InputField>();
+		GalleryNameText = EditCanvas.transform.Find("GalleryName").GetComponent<InputField>();
 		
 		Transform metadata = EditCanvas.transform.Find("Metadata");
 		SaveMetaButton = metadata.Find("SaveMetaButton").GetComponent<Button>();
@@ -79,7 +79,7 @@ public class AdminEditViewScript : MonoBehaviour
 			//		value is null if we just deselected a slot
 			if (_activeSlot != null && value != null)
 				_activeSlot.GetComponent<PaintingSlotScript>().ResetHighlightColor();
-			
+
 			_activeSlot = value;
 			EditUI.EditCanvas.gameObject.SetActive(_activeSlot != null);
 		}
@@ -117,7 +117,7 @@ public class AdminEditViewScript : MonoBehaviour
 		MetadataList = AppSettings.GetAppSettings().ArtRegistry.GetAll();
 		EditUI.ArtDropdown.AddOptions(MetadataList.Map(a => a.ArtTitle));
 
-		EditUI.SaveGalleryButton.onClick.AddListener(ViewMetadata);
+		EditUI.SaveGalleryButton.onClick.AddListener(SaveGallery);
 		
 		EditUI.ArtDropdown.onValueChanged.AddListener(ViewMetadata);
 		
@@ -184,7 +184,10 @@ public class AdminEditViewScript : MonoBehaviour
 	
 	void SaveGallery()
 	{
-		
+		string galleryName = EditUI.GalleryNameText.text;
+		AppSettings.GetAppSettings().galleries[galleryName] = Gallery;
+		AppSettings.GetAppSettings().Save();
+		Debug.Log("Saved the room " + galleryName);
 	}
 	
 	void ViewMetadata(int i)
