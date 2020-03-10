@@ -361,7 +361,7 @@ public class AppSettings
 
     // TODO: unnecessary to save the art registry here if ArtRegistry
     //    already saves automatically. But should it?
-    private AppSettings Save()
+    public AppSettings Save()
         => SaveSettings().SaveGalleries().SaveArtRegistry();
 
     private AppSettings Load()
