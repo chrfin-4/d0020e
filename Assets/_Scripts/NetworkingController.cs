@@ -173,6 +173,9 @@ public class NetworkingController : MonoBehaviourPunCallbacks
         if(usingVR == 0)
         {
     	    ClientPerson = PhotonNetwork.Instantiate("Person", Vector3.zero, Quaternion.identity, 0);
+
+            GameObject.Find("BackgroundMusic").transform.SetParent(ClientPerson.transform);
+
             ClientPerson.GetComponent<Movement>().enabled = true;
             ClientPerson.GetComponent<Menu>().enabled = true;
             ClientPerson.GetComponent<VoiceChat>().enabled = true;
@@ -184,6 +187,9 @@ public class NetworkingController : MonoBehaviourPunCallbacks
         }else
         {
             ClientPerson = PhotonNetwork.Instantiate("VRPerson", new Vector3(0,0,0), Quaternion.identity,0);
+
+            GameObject.Find("BackgroundMusic").transform.SetParent(ClientPerson.transform);
+
             ClientPerson.transform.Find("Capsule").gameObject.SetActive(false);
             ClientPerson.GetComponent<Menu>().enabled = true;
             ClientPerson.GetComponent<VoiceChat>().enabled = true;

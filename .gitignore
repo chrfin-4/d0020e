@@ -22,3 +22,5 @@ Assets/_Prefabs/*
 Assets/_Prefabs/Resources/*
 !Assets/_Prefabs/Resources/*.mat
 !Assets/_Prefabs/Resources/*.prefab
+!Assets/Music
+!Assets/Music/backgroundMusic.mp3

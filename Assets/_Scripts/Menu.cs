@@ -12,9 +12,12 @@ public class Menu : MonoBehaviour {
 	public GameObject menuGroup;
 	public Movement moveScript;
 	public Teleportation teleportation;
+	private Transform oldMusicLocation;
+	private GameObject backgroundMusic;
 
 	void Start(){
 		//Debug.Log("StandbyCam: " + standbyCam.ToString() );
+		backgroundMusic = GameObject.Find("BackgroundMusic");
 	}
 
 	void FixedUpdate(){
@@ -34,6 +37,9 @@ public class Menu : MonoBehaviour {
 			Cursor.visible = true;
 			menuGroup.SetActive(true);
 			playerCam.SetActive(false);
+			oldMusicLocation = backgroundMusic.transform.parent.transform;
+            backgroundMusic.transform.SetParent(menuGroup.transform);
+
 			if(teleportation != null)
 			{
 				//menuGroup.transform.Find("OVRCameraRig").GetComponent<OVRSystemPrefMetrics/OVRSystemPerfMetricsTcpServer>().enabled = true;
@@ -48,8 +54,10 @@ public class Menu : MonoBehaviour {
 		}else
 		{
 			Cursor.visible = false;
+            backgroundMusic.transform.SetParent(oldMusicLocation);
 			menuGroup.SetActive(false);
 			playerCam.SetActive(true);
+
 			if(teleportation != null)
 			{
 				//menuGroup.transform.Find("OVRCameraRig").GetComponent<OVRSystemPrefMetrics>().enabled = true;
