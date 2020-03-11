@@ -147,6 +147,19 @@ public static class ListExtension
         return result;
     }
 
+    public static List<T> ToSorted<T>(this List<T> list)
+    {
+        list.Sort();
+        return list;
+    }
+
+    public static List<T> ToSorted<T,R>(this List<T> list, Func<T,R> fieldAccessor) where R : IComparable<R>
+    {
+        Comparison<T> cmp = (T t1, T t2) => fieldAccessor(t1).CompareTo(fieldAccessor(t2));
+        list.Sort(cmp);
+        return list;
+    }
+
     public static Dictionary<K,V> ToDict<K,V,T>(this List<T> list, Func<T,K> keyFun, Func<T,V> valFun)
     {
         Dictionary<K,V> dict = new Dictionary<K,V>(list.Count);
