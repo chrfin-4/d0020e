@@ -347,7 +347,7 @@ public class AppSettings
 
     private AppSettings()
     {
-        PlayerPrefs.SetString(RootPathKey, "config");
+        //PlayerPrefs.SetString(RootPathKey, "config");
         defaults.SetIfMissing(RootPathKey, Application.persistentDataPath); // TODO: remove from defaults?
     }
 
