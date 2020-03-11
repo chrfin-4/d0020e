@@ -19,7 +19,8 @@ public class NetworkingController : MonoBehaviourPunCallbacks
 
     public GameObject ClientPerson;
     public GameObject menuGroup;
-    
+    public string GalleryName { get; set; }
+
     public int usingVR;
 
 
@@ -97,12 +98,15 @@ public class NetworkingController : MonoBehaviourPunCallbacks
         transform.GetComponent<UI>().DisplayButtons(rooms);
         if(PhotonNetwork.IsMasterClient)
         {
+            Dictionary<string,RoomSettings> galleries = AppSettings.GetAppSettings().galleries;
             // FIXME:
             //    Should not use a hard-coded gallery name.
             //    Should not rearrange slots here. (Fix the gallery and/or art slots in the scene.)
-            RoomSettings room = AppSettings.GetAppSettings().galleries["Test 2D and 3D"];
-            room.Slots[5] = room.Slots[0];
-            room.Slots.Remove(0);
+            //Debug.Log("Creating room " + GalleryName + " (exists? " + (galleries.ContainsKey(GalleryName)) + ")");
+            RoomSettings room = galleries[GalleryName];
+            //RoomSettings room = galleries["Test Gallery"];
+            //room.Slots[5] = room.Slots[0];
+            //room.Slots.Remove(0);
             ClientPerson.GetComponent<SerilazingArt>().ExportArt(room);
         }
     }
@@ -129,6 +133,10 @@ public class NetworkingController : MonoBehaviourPunCallbacks
 
 
     //Other Functions
+    public void refreshButtons()
+    {
+        GetComponent<UI>().DisplayButtons(rooms);
+    }
     void VRCheck()
     {
         eventSystem.GetComponent<OVRInputModule>().enabled = false;

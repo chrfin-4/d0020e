@@ -7,128 +7,146 @@ using Photon.Pun;
 using Photon.Realtime;
 
 public class UI : MonoBehaviour
+{
+    public GameObject UIButton;
+    private List <GameObject> buttons = new List<GameObject>();
+    public Canvas canvas;
+
+    public GameObject WASDStandby;
+    public GameObject VRStandByCameraRig;
+    public List<string> roomList;
+    public GameObject _AdminEditViewScript;
+
+    private bool inSettings = false;
+
+    private Vector3 roomButtonReferencePosition;
+    private Vector3 muteButtonPosition;
+    private Vector3 LeaveButtonPosition;
+    private Vector3 SettingsButtonPosition;
+    private Vector3 EditGalleryPosition;
+    private List<string> dropdownOptions;
+    private Dropdown dropdown;
+
+    void Start()
     {
-    	public GameObject UIButton;
-	    private List <GameObject> buttons = new List<GameObject>();
-        public Canvas canvas;
-
-	    public GameObject WASDStandby;
-	    public GameObject VRStandByCameraRig;
-
-		private bool inSettings = false;
-
-		private Vector3 roomButtonReferencePosition;
-		private Vector3 muteButtonPosition;
-		private Vector3 LeaveButtonPosition;
-		private Vector3 SettingsButtonPosition;
-		private Vector3 EditGalleryPosition;
-
-    	void Start()
-    	{
-    		roomButtonReferencePosition = canvas.transform.position - new Vector3(20f, 10f, 0);
-			muteButtonPosition = canvas.transform.position - new Vector3(-20f, 5f, 0);
-			LeaveButtonPosition = canvas.transform.position - new Vector3(0f, 10f, 0);
-			SettingsButtonPosition = canvas.transform.position - new Vector3(-20f, 10f, 0);
-			EditGalleryPosition = canvas.transform.position - new Vector3(0f, -10f, 0f);
-    	}
-
-
-    	// Generic button creation with a buttontext and a Transform parent. Returns the buttonobject for user to add listners
-	    public GameObject createButton(string buttonText, Transform parent, Vector3 positionVector){
-	        GameObject buttonObject = Instantiate(UIButton);
-	        Button button = (Button)buttonObject.GetComponent("Button");
-	        var buttonTextChild = buttonObject.transform.GetChild(0);
-	        Text buttonTextChildComponent = (Text)buttonTextChild.GetComponent("Text");
-	        buttonTextChildComponent.text = buttonText;
-	        buttonObject.transform.SetParent(parent, false);
-            buttonObject.transform.position = positionVector;
-			//Debug.Log("Position: " + buttonObject.transform.position.ToString() );
-
-	        buttons.Add(buttonObject);
-	        return buttonObject;
-	    }
-
-	    public void DisplayButtons(List <RoomInfo> rooms)
-	    {
-			//Debug.Log("Display Debug: " + canvas.worldCamera.ToString() );
-	        for(int i = 0; i < canvas.transform.childCount; i++ )
-	        {
-	        	//Debug.Log(canvas.transform.GetChild(i).gameObject.ToString());
-	            Destroy(canvas.transform.GetChild(i).gameObject );
-	        }
-	        //Debug.Log("InRoom: " + transform.GetComponent<NetworkingController>().inRoom.ToString() );
-			//
-			if(!inSettings)
-			{
-				GameObject SettingButton = createButton("Settings", canvas.transform, SettingsButtonPosition);
-				((Button)SettingButton.GetComponent("Button")).onClick.AddListener(() => ToggleSettings() );
-				if(transform.GetComponent<NetworkingController>().inRoom == 0)
-				{
-					
-					//Instantiate(Cube, VRLeftStandby.gameObject.transform.position + new Vector3(20,20,20), Quaternion.identity);
-					// CreateRoomButton("Create Button");
-					GameObject createRoomButtonObject = createButton("Create Room", canvas.transform, roomButtonReferencePosition);
-					((Button)createRoomButtonObject.GetComponent("Button")).onClick.AddListener(() => transform.GetComponent<NetworkingController>().CreatePhotonRoom());
-
-					GameObject EditGallery = createButton("Edit Gallery", canvas.transform, EditGalleryPosition);
-					//Få in editmode onclick
-					int numberOfRooms = 0;
-					if(rooms != null)
-					{
-						foreach(var room in rooms)
-						{
-							numberOfRooms += 1;
-						}
-						if(numberOfRooms != 0)
-						{
-							for(int i = 0; i < numberOfRooms; i++)
-							{ 
-								if(rooms[i].PlayerCount != 0)
-								{
-									GameObject JoinRoomButtonObject = createButton("Join Room " + rooms[i].Name, canvas.transform, roomButtonReferencePosition + new Vector3(0, 3f * (i + 1f), 0) );
-									//Debug.Log("JoinButtonPos: " + JoinRoomButtonObject.transform.position.ToString() );
-									RoomInfo room = rooms[i];
-									((Button)JoinRoomButtonObject.GetComponent("Button")).onClick.AddListener(() => PhotonNetwork.JoinRoom(room.Name));
-									// JoinRoomButton("Join Room " + rooms[i].Name, i);
-								}
-							}
-						}
-					}
-				}else{
-					GameObject LeaveButton = createButton("Leave Room", canvas.transform, LeaveButtonPosition);
-					((Button)LeaveButton.GetComponent("Button")).onClick.AddListener(() => PhotonNetwork.LeaveRoom() );
-				}
-			}else{
-				if(transform.GetComponent<NetworkingController>().ClientPerson != null)
-				{
-					GameObject muteButton = createButton("Voice Chat: " + GetComponent<NetworkingController>().ClientPerson.GetComponent<VoiceChat>().listener.enabled.ToString(), canvas.transform, muteButtonPosition);
-					((Button)muteButton.GetComponent("Button")).onClick.AddListener(() => MuteCall(rooms) );
-				}
-				GameObject BackFromSettingsButton = createButton("Back", canvas.transform, SettingsButtonPosition);
-				((Button)BackFromSettingsButton.GetComponent("Button")).onClick.AddListener(() => ToggleSettings() );
-			}
-	    }
-
-		private void MuteCall(List <RoomInfo> rooms)
-		{
-			transform.GetComponent<NetworkingController>().ClientPerson.transform.GetComponent<VoiceChat>().Mute();
-			DisplayButtons(rooms);
-		}
-        //Setting up canvas which is necessary for world gui to work, essential for VR    
-		private void ToggleSettings()
-		{
-			inSettings = !inSettings;
-			DisplayButtons(transform.GetComponent<NetworkingController>().rooms);
-		}
-
-	    public void setupCanvas()
-	    {
-	        if(transform.GetComponent<NetworkingController>().usingVR == 1)
-	        {
-	            canvas.worldCamera = VRStandByCameraRig.transform.Find("TrackingSpace").transform.Find("CenterEyeAnchor").GetComponent<Camera>();
-	        }else
-	        {
-	            canvas.worldCamera = WASDStandby.GetComponent<Camera>();
-	        }
-	    }
+        roomButtonReferencePosition = canvas.transform.position - new Vector3(0, -10f, 0);
+        muteButtonPosition = canvas.transform.position - new Vector3(-20f, 5f, 0);
+        LeaveButtonPosition = canvas.transform.position - new Vector3(0f, 10f, 0);
+        SettingsButtonPosition = canvas.transform.position - new Vector3(-20f, 10f, 0);
+        EditGalleryPosition = canvas.transform.position - new Vector3(-20f, -10f, 0f);
+        dropdown = canvas.transform.Find("Dropdown").GetComponent<Dropdown>();
+        dropdown.onValueChanged.AddListener(index => GetComponent<NetworkingController>().GalleryName = roomList[index]);
     }
+
+
+    // Generic button creation with a buttontext and a Transform parent. Returns the buttonobject for user to add listners
+    public GameObject createButton(string buttonText, Transform parent, Vector3 positionVector){
+        GameObject buttonObject = Instantiate(UIButton);
+        Button button = (Button)buttonObject.GetComponent("Button");
+        var buttonTextChild = buttonObject.transform.GetChild(0);
+        Text buttonTextChildComponent = (Text)buttonTextChild.GetComponent("Text");
+        buttonTextChildComponent.text = buttonText;
+        buttonObject.transform.SetParent(parent, false);
+        buttonObject.transform.position = positionVector;
+        //Debug.Log("Position: " + buttonObject.transform.position.ToString() );
+
+        buttons.Add(buttonObject);
+        return buttonObject;
+    }
+
+    public void DisplayButtons(List <RoomInfo> rooms)
+    {
+        //Debug.Log("Display Debug: " + canvas.worldCamera.ToString() );
+        for(int i = 0; i < canvas.transform.childCount; i++ )
+        {
+            if(canvas.transform.GetChild(i).name != "Dropdown")
+            {
+                Destroy(canvas.transform.GetChild(i).gameObject );
+            }
+        }
+        //Debug.Log("InRoom: " + transform.GetComponent<NetworkingController>().inRoom.ToString() );
+        //
+        if(!inSettings)
+        {
+            GameObject SettingButton = createButton("Settings", canvas.transform, SettingsButtonPosition);
+            ((Button)SettingButton.GetComponent("Button")).onClick.AddListener(() => ToggleSettings() );
+            if(transform.GetComponent<NetworkingController>().inRoom == 0)
+            {
+
+                //Instantiate(Cube, VRLeftStandby.gameObject.transform.position + new Vector3(20,20,20), Quaternion.identity);
+                // CreateRoomButton("Create Button");
+                GameObject createRoomButtonObject = createButton("Create Room", canvas.transform, roomButtonReferencePosition);
+                ((Button)createRoomButtonObject.GetComponent("Button")).onClick.AddListener(() => transform.GetComponent<NetworkingController>().CreatePhotonRoom());
+
+                GameObject EditGallery = createButton("Edit Gallery", canvas.transform, EditGalleryPosition);
+                ((Button)EditGallery.GetComponent("Button")).onClick.AddListener(() => {
+                  _AdminEditViewScript.SetActive(true);
+                  _AdminEditViewScript.GetComponent<AdminEditViewScript>().StartEditMode();
+                });
+
+                roomList = new List<string>(AppSettings.GetAppSettings().galleries.Keys);
+                dropdown.ClearOptions();
+                dropdown.AddOptions(roomList);
+                if (roomList.Count == 1)
+                    GetComponent<NetworkingController>().GalleryName = roomList[0];
+
+                int numberOfRooms = 0;
+                if(rooms != null)
+                {
+                    foreach(var room in rooms)
+                    {
+                        numberOfRooms += 1;
+                    }
+                    if(numberOfRooms != 0)
+                    {
+                        for(int i = 0; i < numberOfRooms; i++)
+                        { 
+                            if(rooms[i].PlayerCount != 0)
+                            {
+                                GameObject JoinRoomButtonObject = createButton("Join Room " + rooms[i].Name, canvas.transform, roomButtonReferencePosition + new Vector3(0, 3f * (i + 1f), 0) );
+                                //Debug.Log("JoinButtonPos: " + JoinRoomButtonObject.transform.position.ToString() );
+                                RoomInfo room = rooms[i];
+                                ((Button)JoinRoomButtonObject.GetComponent("Button")).onClick.AddListener(() => PhotonNetwork.JoinRoom(room.Name));
+                                // JoinRoomButton("Join Room " + rooms[i].Name, i);
+                            }
+                        }
+                    }
+                }
+            }else{
+                GameObject LeaveButton = createButton("Leave Room", canvas.transform, LeaveButtonPosition);
+                ((Button)LeaveButton.GetComponent("Button")).onClick.AddListener(() => PhotonNetwork.LeaveRoom() );
+            }
+        }else{
+            if(transform.GetComponent<NetworkingController>().ClientPerson != null)
+            {
+                GameObject muteButton = createButton("Voice Chat: " + GetComponent<NetworkingController>().ClientPerson.GetComponent<VoiceChat>().listener.enabled.ToString(), canvas.transform, muteButtonPosition);
+                ((Button)muteButton.GetComponent("Button")).onClick.AddListener(() => MuteCall(rooms) );
+            }
+            GameObject BackFromSettingsButton = createButton("Back", canvas.transform, SettingsButtonPosition);
+            ((Button)BackFromSettingsButton.GetComponent("Button")).onClick.AddListener(() => ToggleSettings() );
+        }
+    }
+
+    private void MuteCall(List <RoomInfo> rooms)
+    {
+        transform.GetComponent<NetworkingController>().ClientPerson.transform.GetComponent<VoiceChat>().Mute();
+        DisplayButtons(rooms);
+    }
+    //Setting up canvas which is necessary for world gui to work, essential for VR    
+    private void ToggleSettings()
+    {
+        inSettings = !inSettings;
+        DisplayButtons(transform.GetComponent<NetworkingController>().rooms);
+    }
+
+    public void setupCanvas()
+    {
+        if(transform.GetComponent<NetworkingController>().usingVR == 1)
+        {
+            canvas.worldCamera = VRStandByCameraRig.transform.Find("TrackingSpace").transform.Find("CenterEyeAnchor").GetComponent<Camera>();
+        }else
+        {
+            canvas.worldCamera = WASDStandby.GetComponent<Camera>();
+        }
+    }
+}

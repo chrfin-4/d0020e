@@ -7,8 +7,8 @@ public class SlotMasterScript : MonoBehaviour
 {
 
     private int slots = 0;
-	private bool EditMode = false;
-	//private EditSettings Settings;
+    private bool EditMode = false;
+    //private EditSettings Settings;
     //public RoomSettings roomSettings;
 
     // Start is called before the first frame update
@@ -18,18 +18,18 @@ public class SlotMasterScript : MonoBehaviour
         foreach (Transform child in transform)
         {
             /*Debug.Log(slots);
-            ArtMetaData artMeta = new ArtMetaData(
-                "title",
-                "artist",
-                filename,
-                ArtType.Painting
-            );
-            child.GetComponent<PaintingSlotScript>().Settings = new SlotSettings(
-                slots,
-                artMeta
-            );
-            if (!ArtRegistry.GetArtRegistry().HasArt(artMeta.Checksum))
-                ArtRegistry.GetArtRegistry().AddArt(artMeta);
+              ArtMetaData artMeta = new ArtMetaData(
+              "title",
+              "artist",
+              filename,
+              ArtType.Painting
+              );
+              child.GetComponent<PaintingSlotScript>().Settings = new SlotSettings(
+              slots,
+              artMeta
+              );
+              if (!ArtRegistry.GetArtRegistry().HasArt(artMeta.Checksum))
+              ArtRegistry.GetArtRegistry().AddArt(artMeta);
 
             //Sprite sprite = IMG2Sprite.instance.LoadNewSprite(filename);
             //Debug.Log(sprite);
@@ -38,34 +38,39 @@ public class SlotMasterScript : MonoBehaviour
             slots++;*/
         }
     }
-	
-	public void StartEditMode(UnityAction<(HighlightEventType, GameObject)> call)
+
+    public void StartEditMode(UnityAction<(HighlightEventType, GameObject)> call)
     {
         EditMode = true;
-		int i = 0;
-		foreach (Transform artSlot in transform)
-		{
-			PaintingSlotScript slotScript = artSlot.GetComponent<PaintingSlotScript>();
-			//slotScript.UIButton = settings.UIButton;
-			slotScript.SetEditMode(true);
-			slotScript.AddHighlightListener(call);
-			//slotScript.setCamera(Settings.EditViewCamera);
-			slotScript.Number = i++;
-		}
+        int i = 0;
+        foreach (Transform artSlot in transform)
+        {
+            PaintingSlotScript slotScript = artSlot.GetComponent<PaintingSlotScript>();
+            //slotScript.UIButton = settings.UIButton;
+            slotScript.SetEditMode(true);
+            slotScript.AddHighlightListener(call);
+            //slotScript.setCamera(Settings.EditViewCamera);
+            slotScript.Number = i++;
+        }
     }
-	
-	public void StopEditMode()
+
+    public void StopEditMode()
     {
-		EditMode = false;
-	}
-	
-	public void AddHighlightListeners(UnityAction<(HighlightEventType, GameObject)> call)
-	{
-		foreach (Transform artSlot in transform)
-		{
-			artSlot.GetComponent<PaintingSlotScript>().AddHighlightListener(call);
-		}
-	}
+        EditMode = false;
+        foreach (Transform artSlot in transform)
+        {
+            PaintingSlotScript slotScript = artSlot.GetComponent<PaintingSlotScript>();
+            slotScript.SetEditMode(false);
+        }
+    }
+
+    public void AddHighlightListeners(UnityAction<(HighlightEventType, GameObject)> call)
+    {
+        foreach (Transform artSlot in transform)
+        {
+            artSlot.GetComponent<PaintingSlotScript>().AddHighlightListener(call);
+        }
+    }
 
     // Update is called once per frame
     void Update()
