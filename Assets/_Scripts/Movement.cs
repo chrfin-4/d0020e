@@ -25,7 +25,8 @@ public class Movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-		Move();
+        Move();
+        GetComponent<Menu>().MenuUpdate();
     }
 
 
@@ -39,9 +40,11 @@ public class Movement : MonoBehaviour
 		
 		verticalRotation -= Input.GetAxis("Mouse Y") * sensitivity;
 		verticalRotation = Mathf.Clamp(verticalRotation, -upDownRange, upDownRange);
+    /*
 		if(Camera.main.transform.gameObject.activeSelf){
 			Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
 		}
+    */
 		//WASD Movement
 
 		if(!CC.isGrounded)

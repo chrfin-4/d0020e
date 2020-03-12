@@ -17,7 +17,7 @@ public class Menu : MonoBehaviour {
 		//Debug.Log("StandbyCam: " + standbyCam.ToString() );
 	}
 
-	void FixedUpdate(){
+	public void MenuUpdate(){
 		if( Input.GetKeyDown(KeyCode.M) || OVRInput.GetDown(OVRInput.Button.Two) ){
 			ToggleMenu();
 		}
@@ -25,7 +25,8 @@ public class Menu : MonoBehaviour {
 
 	void ToggleMenu()
 	{
-		menuToggle = menuToggle == true ? menuToggle = false : menuToggle = true;
+		//menuToggle = menuToggle == true ? menuToggle = false : menuToggle = true;
+		menuToggle = !menuToggle;
 
 		//Debug.Log("teleportation enabled: " + GetComponent<Teleportation>().enabled.ToString() );
 		//Debug.Log("StandbyCam: " + menuGroup.ToString() );
@@ -43,7 +44,7 @@ public class Menu : MonoBehaviour {
 			}
 			if(moveScript != null)
 			{
-				GetComponent<Movement>().enabled = false;
+				//GetComponent<Movement>().enabled = false;
 			}
 		}else
 		{

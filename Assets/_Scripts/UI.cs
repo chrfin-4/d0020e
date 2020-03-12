@@ -54,6 +54,12 @@ public class UI : MonoBehaviour
         return buttonObject;
     }
 
+    private void enableAdminEditView()
+    {
+        _AdminEditViewScript.SetActive(true);
+        _AdminEditViewScript.GetComponent<AdminEditViewScript>().StartEditMode();
+    }
+
     public void DisplayButtons(List <RoomInfo> rooms)
     {
         //Debug.Log("Display Debug: " + canvas.worldCamera.ToString() );
@@ -82,10 +88,13 @@ public class UI : MonoBehaviour
                     ((Button)createRoomButtonObject.GetComponent("Button")).onClick.AddListener(() => transform.GetComponent<NetworkingController>().CreatePhotonRoom());
 
                     GameObject EditGallery = createButton("Edit Gallery", canvas.transform, EditGalleryPosition);
+                    /*
                     ((Button)EditGallery.GetComponent("Button")).onClick.AddListener(() => {
                       _AdminEditViewScript.SetActive(true);
                       _AdminEditViewScript.GetComponent<AdminEditViewScript>().StartEditMode();
                     });
+                    */
+                    ((Button)EditGallery.GetComponent("Button")).onClick.AddListener(() => enableAdminEditView());
 
                     roomList = new List<string>(AppSettings.GetAppSettings().galleries.Keys);
                     dropdown.ClearOptions();
