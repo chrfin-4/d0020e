@@ -73,22 +73,31 @@ public class UI : MonoBehaviour
             if(transform.GetComponent<NetworkingController>().inRoom == 0)
             {
 
-                //Instantiate(Cube, VRLeftStandby.gameObject.transform.position + new Vector3(20,20,20), Quaternion.identity);
-                // CreateRoomButton("Create Button");
-                GameObject createRoomButtonObject = createButton("Create Room", canvas.transform, roomButtonReferencePosition);
-                ((Button)createRoomButtonObject.GetComponent("Button")).onClick.AddListener(() => transform.GetComponent<NetworkingController>().CreatePhotonRoom());
+                if (GetComponent<NetworkingController>().usingVR == 0)
+                {
 
-                GameObject EditGallery = createButton("Edit Gallery", canvas.transform, EditGalleryPosition);
-                ((Button)EditGallery.GetComponent("Button")).onClick.AddListener(() => {
-                  _AdminEditViewScript.SetActive(true);
-                  _AdminEditViewScript.GetComponent<AdminEditViewScript>().StartEditMode();
-                });
+                    //Instantiate(Cube, VRLeftStandby.gameObject.transform.position + new Vector3(20,20,20), Quaternion.identity);
+                    // CreateRoomButton("Create Button");
+                    GameObject createRoomButtonObject = createButton("Create Room", canvas.transform, roomButtonReferencePosition);
+                    ((Button)createRoomButtonObject.GetComponent("Button")).onClick.AddListener(() => transform.GetComponent<NetworkingController>().CreatePhotonRoom());
 
-                roomList = new List<string>(AppSettings.GetAppSettings().galleries.Keys);
-                dropdown.ClearOptions();
-                dropdown.AddOptions(roomList);
-                if (roomList.Count == 1)
-                    GetComponent<NetworkingController>().GalleryName = roomList[0];
+                    GameObject EditGallery = createButton("Edit Gallery", canvas.transform, EditGalleryPosition);
+                    ((Button)EditGallery.GetComponent("Button")).onClick.AddListener(() => {
+                      _AdminEditViewScript.SetActive(true);
+                      _AdminEditViewScript.GetComponent<AdminEditViewScript>().StartEditMode();
+                    });
+
+                    roomList = new List<string>(AppSettings.GetAppSettings().galleries.Keys);
+                    dropdown.ClearOptions();
+                    dropdown.AddOptions(roomList);
+                    if (roomList.Count == 1)
+                        GetComponent<NetworkingController>().GalleryName = roomList[0];
+                }
+                else
+                {
+                    // Using VR
+                    dropdown.gameObject.SetActive(false);
+                }
 
                 int numberOfRooms = 0;
                 if(rooms != null)
